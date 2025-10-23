@@ -31,7 +31,6 @@ export default function Navbar() {
           <ul className="navbar-nav ms-auto align-items-center">
             <li className="nav-item"><Link href="/" className="nav-link">Inicio</Link></li>
             <li className="nav-item"><Link href="/productos" className="nav-link">Productos</Link></li>
-            <li className="nav-item"><Link href="/categorias" className="nav-link">Categorías</Link></li>
             <li className="nav-item"><Link href="/contacto" className="nav-link">Contacto</Link></li>
             <li className="nav-item"><Link href="/carrito" className="nav-link">Carrito {cartItems.length > 0 && <span className="badge bg-primary ms-1">{cartItems.length}</span>}</Link></li>
 
