@@ -1,6 +1,7 @@
+"use client";
 import { useRouter } from 'next/router';
 import { Card } from 'react-bootstrap';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Confirmacion(){
   const router = useRouter();

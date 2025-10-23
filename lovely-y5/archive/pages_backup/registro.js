@@ -1,6 +1,7 @@
+"use client";
 import { Form, Button, Card } from 'react-bootstrap';
 import { useRouter } from 'next/router';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Registro(){
   

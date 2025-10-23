@@ -1,4 +1,5 @@
-import { useAuth } from '../context/AuthContext';
+"use client";
+import { useAuth } from '../../context/AuthContext';
 import { Card, ListGroup, Button, Form, Modal } from 'react-bootstrap';
 import { useState } from 'react';
 

@@ -1,8 +1,9 @@
+"use client";
 import { Card, Row, Col, Form, Button } from 'react-bootstrap';
 import Link from 'next/link';
-import products from '../data/products';
+import products from '../../data/products';
 import { useState } from 'react';
-import '../styles/selectable.css';
+import '../../styles/selectable.css';
 
 export default function Productos() {
   const [query, setQuery] = useState('');

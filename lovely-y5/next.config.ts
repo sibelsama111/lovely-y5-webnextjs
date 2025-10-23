@@ -1,6 +1,7 @@
 const nextConfig = ({
-  // Enable App Router (use app/ directory as main). Set to true to make `app/page.tsx` the homepage.
-  appDir: true,
+  // Default Next.js config. We deliberately avoid setting appDir here so Next's
+  // own detection handles the presence of the `app/` directory and avoids
+  // emitting an 'Unrecognized key' warning during build.
 }) as unknown as Record<string, unknown>;
 
 export default nextConfig;

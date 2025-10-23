@@ -1,3 +1,4 @@
+"use client";
 import { Card, Form, Button } from 'react-bootstrap';
 import { useRouter } from 'next/router';
 

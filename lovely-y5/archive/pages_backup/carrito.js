@@ -1,4 +1,5 @@
-import { useCart } from '../context/CartContext';
+"use client";
+import { useCart } from '../../context/CartContext';
 import { Card, Button, Form, ListGroup } from 'react-bootstrap';
 import { useState } from 'react';
 import { useRouter } from 'next/router';

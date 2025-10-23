@@ -1,3 +1,4 @@
+"use client";
 import { Card, Form, Button } from 'react-bootstrap';
 
 export default function Contacto(){
