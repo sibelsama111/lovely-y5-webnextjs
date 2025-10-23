@@ -1,24 +1,54 @@
 // app/page.tsx
+'use client'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import ProductCard from '../components/ProductCard'
+
+type Product = {
+  id: string;
+  codigo: string;
+  nombre: string;
+  marca: string;
+  tipo: string;
+  precio: number;
+  imagenes?: string[];
+  descripcion: string;
+  detalles: string;
+  stock: number;
+}
 
 export default function Home() {
+  const [products, setProducts] = useState<Product[]>([])
+
+  useEffect(() => {
+    fetch('/api/products')
+      .then(r => r.json())
+      .then(data => setProducts(data.slice(0, 3)))
+  }, [])
+
   return (
     <div>
       <div className="p-4 bg-white rounded shadow-sm">
         <h1>Bienvenid@ a Lovely Y5</h1>
         <p className="lead">Ventas de tecnología — demo funcional para la evaluación.</p>
         <p>
-          <Link href="/productos"><a className="btn btn-primary me-2">Ver Productos</a></Link>
-          <Link href="/contacto"><a className="btn btn-outline-secondary">Contacto</a></Link>
+          <Link href="/productos">
+            <button className="btn btn-primary me-2">Ver Productos</button>
+          </Link>
+          <Link href="/contacto">
+            <button className="btn btn-outline-secondary">Contacto</button>
+          </Link>
         </p>
       </div>
 
       <div className="mt-4">
         <h3>Ofertas destacadas</h3>
         <div className="row g-3">
-          <div className="col-md-4"><div className="card p-3">Producto demo 1</div></div>
-          <div className="col-md-4"><div className="card p-3">Producto demo 2</div></div>
-          <div className="col-md-4"><div className="card p-3">Producto demo 3</div></div>
+          {products.map(product => (
+            <div key={product.id} className="col-md-4">
+              <ProductCard product={product} />
+            </div>
+          ))}
         </div>
       </div>
     </div>

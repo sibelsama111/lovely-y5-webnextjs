@@ -8,7 +8,7 @@ import FloatingCart from '../components/FloatingCart'
 
 export const metadata = {
   title: process.env.NEXT_PUBLIC_SITE_NAME || 'Lovely Y5',
-  description: 'Tienda Lovely Y5 - Demo'
+  description: 'Lovely Y5 - Tienda de tecnología en línea',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

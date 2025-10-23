@@ -12,8 +12,10 @@ export default function ProductosPage() {
 
   useEffect(() => {
     fetch('/api/products').then(r => r.json()).then(data => {
-      setProducts(data)
-      setFiltered(data.sort((a:any,b:any)=> a.precio - b.precio))
+      // Ordenar los productos por precio de menor a mayor
+      const sortedData = [...data].sort((a, b) => a.precio - b.precio)
+      setProducts(sortedData)
+      setFiltered(sortedData)
       setMarcas(Array.from(new Set(data.map((p:any)=>p.marca))))
       setTipos(Array.from(new Set(data.map((p:any)=>p.tipo))))
     })
@@ -29,6 +31,8 @@ export default function ProductosPage() {
     if (change.tipo) list = list.filter(p => p.tipo === change.tipo)
     if (change.minPrice) list = list.filter(p => p.precio >= Number(change.minPrice))
     if (change.maxPrice) list = list.filter(p => p.precio <= Number(change.maxPrice))
+    // Mantener el orden por precio después del filtrado
+    list = list.sort((a, b) => a.precio - b.precio)
     setFiltered(list)
   }
 
