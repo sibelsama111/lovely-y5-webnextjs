@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation'
 export default function CarritoPage() {
   const { cartItems, updateQuantity, removeFromCart, clearCart } = useContext(CartContext)
   const { user } = useContext(AuthContext)
+  const [rut, setRut] = useState(user?.rut || '')
   const [shipping, setShipping] = useState(user?.direccion || '')
   const [name, setName] = useState(user ? `${user.primerNombre} ${user.apellidos}` : '')
   const [phone, setPhone] = useState(user?.telefono || '')
@@ -23,25 +24,26 @@ export default function CarritoPage() {
 
   const confirmOrder = async () => {
     if (cartItems.length === 0) { alert('Carrito vacío'); return }
-    if (!name || !phone || !shipping) { alert('Completa datos de envío'); return }
+    if (!rut || !name || !phone || !shipping) { alert('Completa todos los datos de envío'); return }
+    if (!/^[0-9]+-[0-9kK]$/.test(rut)) { alert('Formato de RUT inválido'); return }
     setProcessing(true)
     const order = {
       id: uuidv4(),
       items: cartItems,
       total,
-      shipping: { name, phone, address: shipping },
+      shipping: { rut, name, phone, address: shipping },
       payment: { method: 'card', cardLast4: cardNumber.slice(-4) || '0000' },
-      customer: user ? { id: user.rut, primerNombre: user.primerNombre } : { id: 'guest', primerNombre: name },
+      customer: user ? { id: user.rut, primerNombre: user.primerNombre } : { id: rut, primerNombre: name },
       status: 'confirmado',
       createdAt: new Date().toISOString()
     }
     try {
       await fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(order) })
       clearCart()
-      alert('Compra efectuada ✅')
+      alert('Compra efectuada')
       router.push('/confirmacion')
     } catch (err) {
-      alert('Error creando orden (demo)')
+      alert('Error creando orden.')
     } finally {
       setProcessing(false)
     }
@@ -73,11 +75,49 @@ export default function CarritoPage() {
           <div className="col-md-5">
             <div className="card p-3">
               <h5>Datos de envío</h5>
-              <input className="form-control mb-2" placeholder="Nombre completo" value={name} onChange={e => setName(e.target.value)} />
-              <input className="form-control mb-2" placeholder="Teléfono" value={phone} onChange={e => setPhone(e.target.value)} />
-              <input className="form-control mb-2" placeholder="Dirección" value={shipping} onChange={e => setShipping(e.target.value)} />
+              <div className="mb-3">
+                <label className="form-label">RUT <span className="text-danger">*</span></label>
+                <input 
+                  className="form-control" 
+                  placeholder="12345678-9" 
+                  value={rut} 
+                  onChange={e => setRut(e.target.value)}
+                  required 
+                />
+                <small className="text-muted">Sin puntos, con guión</small>
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Nombre completo <span className="text-danger">*</span></label>
+                <input 
+                  className="form-control" 
+                  placeholder="Nombre y apellidos" 
+                  value={name} 
+                  onChange={e => setName(e.target.value)}
+                  required 
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Teléfono <span className="text-danger">*</span></label>
+                <input 
+                  className="form-control" 
+                  placeholder="+56 9 XXXX XXXX" 
+                  value={phone} 
+                  onChange={e => setPhone(e.target.value)}
+                  required 
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Dirección de envío <span className="text-danger">*</span></label>
+                <input 
+                  className="form-control" 
+                  placeholder="Calle, número, depto, comuna" 
+                  value={shipping} 
+                  onChange={e => setShipping(e.target.value)}
+                  required 
+                />
+              </div>
               <hr />
-              <h6>Pago (modo TEST)</h6>
+              <h6>Pago online</h6>
               <input className="form-control mb-2" placeholder="Número de tarjeta" value={cardNumber} onChange={e => setCardNumber(e.target.value)} />
               <input className="form-control mb-2" placeholder="Nombre en tarjeta" value={cardName} onChange={e => setCardName(e.target.value)} />
               <div className="d-flex">
