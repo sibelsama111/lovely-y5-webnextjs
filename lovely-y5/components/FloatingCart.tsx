@@ -9,7 +9,7 @@ export default function FloatingCart() {
       <Link href="/carrito">
         <a className="d-flex align-items-center justify-content-center"
            style={{ width: 64, height: 64, borderRadius: 32, background: '#fff', boxShadow: '0 6px 18px rgba(0,0,0,.12)' }}>
-          <img src="lovely-y5/public/cart.svg" alt="Carrito" style={{ width: 34, height: 34 }} />
+          <img src="/cart.svg" alt="Carrito" style={{ width: 34, height: 34 }} />
         </a>
       </Link>
     </div>

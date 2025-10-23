@@ -19,7 +19,7 @@ export default function Navbar() {
     <nav className="navbar navbar-expand-md navbar-light bg-white shadow-sm">
       <div className="container">
         <Link href="/" className="navbar-brand d-flex align-items-center">
-          <img src="lovely-y5/public/logo.svg" alt="Lovely Y5" width={40} height={40} />
+          <img src="/logo.svg" alt="Lovely Y5" width={40} height={40} />
           <span className="ms-2 fw-bold">Lovely Y5</span>
         </Link>
 
