@@ -20,10 +20,10 @@ export default function Footer() {
             </div>
           </div>
           <div className="col-md-6 text-md-end">
-            <a href="https://facebook.com" target="_blank" rel="noreferrer" className="me-2"><img src="/facebook.svg" alt="fb" width="24" /></a>
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="me-2"><img src="/instagram.svg" alt="ig" width="24" /></a>
-            <a href="https://mercadolibre.cl" target="_blank" rel="noreferrer"><img src="/mercado-libre.svg" alt="ml" width="24" /></a>
-            <div className="mt-2" style={{opacity:0.8}}>Todos los derechos reservados (c) Lovely Y5 &lt;3</div>
+            <a href="https://web.facebook.com/profile.php?id=61576634015335" target="_blank" rel="noreferrer" className="me-2"><img src="/facebook.svg" alt="fb" width="24" /></a>
+            <a href="https://www.instagram.com/lovely.y5.tech" target="_blank" rel="noreferrer" className="me-2"><img src="/instagram.svg" alt="ig" width="24" /></a>
+            <a href="https://www.paypal.com/paypalme/sibelsama" target="_blank" rel="noreferrer"><img src="/paypal.svg" alt="ml" width="24" /></a>
+            <div className="mt-2" style={{opacity:0.8}}>Todos los derechos reservados © Lovely Y5 &lt;3</div>
           </div>
         </div>
       </div>
