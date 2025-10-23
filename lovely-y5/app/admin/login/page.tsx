@@ -25,24 +25,61 @@ export default function IntranetLogin() {
   }
 
   return (
-    <div className="card p-4">
-      <div className="d-flex align-items-center mb-3">
-        <img src="/svgs/intranet-logo.svg" width={48} />
-        <h4 className="ms-3">IntraLove</h4>
-      </div>
-      <form onSubmit={submit}>
-        <input className="form-control mb-2" placeholder="RUT" value={rut} onChange={e=>setRut(e.target.value)} />
-        <input className="form-control mb-2" placeholder="Contraseña" value={password} onChange={e=>setPassword(e.target.value)} type="password" />
-        <button className="btn btn-primary">Entrar</button>
-      </form>
+    <div className="container">
+      <div className="auth-container">
+        <div className="text-center mb-4">
+          <img src="/svgs/intranet-logo.svg" alt="IntraLove" width={80} height={80} />
+          <h3 className="mt-3">Intranet Lovely Y5</h3>
+        </div>
 
-      <div className="mt-3">
-        <small className="text-muted">¿Eres trabajador? Regístrate desde <strong>Registro trabajadores</strong> (ver /intranet/productos o usar form abajo).</small>
-      </div>
+        <form onSubmit={submit} className="mb-4">
+          <div className="mb-3">
+            <label className="form-label">RUT</label>
+            <input 
+              className="form-control" 
+              placeholder="Ingresa tu RUT" 
+              value={rut} 
+              onChange={e=>setRut(e.target.value)}
+              required 
+            />
+          </div>
 
-      <div className="mt-3 card p-3">
-        <h6>Registro de trabajador (requiere código LVLWRKR5)</h6>
-        <WorkerRegister />
+          <div className="mb-4">
+            <label className="form-label">Contraseña</label>
+            <input 
+              className="form-control" 
+              type="password" 
+              placeholder="Ingresa tu contraseña"
+              value={password} 
+              onChange={e=>setPassword(e.target.value)}
+              required 
+            />
+          </div>
+
+          <div className="d-grid gap-2">
+            <button type="submit" className="btn btn-primary">
+              Iniciar sesión
+            </button>
+            <button 
+              type="button" 
+              className="btn btn-outline-primary"
+              onClick={() => router.push('/admin/registro')}
+            >
+              Registro de trabajadores
+            </button>
+          </div>
+
+          <div className="text-center mt-4">
+            <button 
+              type="button"
+              className="btn btn-link text-decoration-none"
+              onClick={() => router.push('/login')}
+            >
+              Volver a inicio de sesión
+            </button>
+          </div>
+        </form>
+
       </div>
     </div>
   )

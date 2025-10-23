@@ -1,7 +1,173 @@
 /* app/globals.css */
 @import 'bootstrap/dist/css/bootstrap.min.css';
-body { background: #f8f9fa; }
-.navbar-brand img { border-radius: 6px; }
-.product-card img { max-height: 160px; object-fit: contain; }
-.floating-cart-bubble { transition: transform .12s; }
-.floating-cart-bubble:hover { transform: translateY(-4px); }
+
+:root {
+  --primary: #FFACCA;
+  --primary-dark: #ff93b8;
+  --primary-light: #ffc6da;
+  --text-dark: #804B4B;
+  --background: #FFFFFF;
+}
+
+/* Global styles */
+* {
+  font-family: Consolas, monospace;
+}
+
+body { 
+  background: var(--background);
+  color: var(--text-dark);
+  min-height: 100vh;
+}
+
+/* Enlaces */
+a {
+  color: var(--text-dark);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--primary-dark);
+}
+
+/* Botones */
+.btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: var(--text-dark);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+  color: var(--text-dark);
+}
+
+.btn-outline-primary {
+  border-color: var(--primary);
+  color: var(--text-dark);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: var(--text-dark);
+}
+
+/* Navbar */
+.navbar {
+  background-color: var(--primary);
+}
+
+.navbar-brand img { 
+  border-radius: 6px; 
+}
+
+.navbar-light .navbar-nav .nav-link {
+  color: var(--text-dark);
+}
+
+.navbar-light .navbar-nav .nav-link:hover {
+  color: var(--background);
+}
+
+/* Cards */
+.product-card { 
+  transition: transform 0.2s;
+  border-color: var(--primary);
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.product-card img { 
+  max-height: 160px; 
+  object-fit: contain; 
+}
+
+/* Carrito flotante */
+.floating-cart-bubble { 
+  transition: transform .12s;
+  background-color: var(--primary);
+  color: var(--text-dark);
+}
+
+.floating-cart-bubble:hover { 
+  transform: translateY(-4px);
+  background-color: var(--primary-dark);
+}
+
+/* Forms */
+.form-control {
+  border: 1px solid var(--primary);
+  background-color: var(--background);
+  color: var(--text-dark);
+  border-radius: 4px;
+}
+
+.form-control:focus {
+  border-color: var(--primary-dark);
+  box-shadow: 0 0 0 0.2rem rgba(255, 172, 202, 0.25);
+  background-color: var(--background);
+}
+
+.form-label {
+  color: var(--text-dark);
+  font-weight: 500;
+}
+
+/* Headers */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-dark);
+  letter-spacing: -0.5px;
+}
+
+/* Auth pages */
+.auth-container {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(255, 172, 202, 0.2);
+  background: var(--background);
+  border: 1px solid var(--primary);
+}
+
+/* Section containers */
+.section-container {
+  padding: 2rem 0;
+  margin: 1rem 0;
+  background: var(--background);
+  border-radius: 8px;
+}
+
+/* Tables */
+.table {
+  background-color: var(--background);
+  color: var(--text-dark);
+}
+
+.table thead th {
+  background-color: var(--primary-light);
+  color: var(--text-dark);
+  border-bottom: 2px solid var(--primary);
+}
+
+.table td {
+  border-color: var(--primary-light);
+}
+
+/* Cards */
+.card {
+  border-color: var(--primary);
+  box-shadow: 0 2px 4px rgba(255, 172, 202, 0.1);
+  background: var(--background);
+}
+
+.card-header {
+  background-color: var(--primary-light);
+  color: var(--text-dark);
+  border-bottom: 1px solid var(--primary);
+}
