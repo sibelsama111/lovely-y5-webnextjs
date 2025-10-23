@@ -8,6 +8,7 @@ export default function Perfil(){
   const [addr, setAddr] = useState('');
   const [editingIndex, setEditingIndex] = useState(-1);
   const [editValue, setEditValue] = useState('');
+  const [orderDetails, setOrderDetails] = useState(null);
 
   if(!user) return <p>Debes iniciar sesión.</p>;
 
@@ -78,7 +79,12 @@ export default function Perfil(){
         {(user.pedidos||[]).length===0 ? <p>No tienes pedidos.</p> : (
           <ListGroup>
             {(user.pedidos||[]).map(p=> (
-              <ListGroup.Item key={p.id}>{p.id} - ${p.total?.toLocaleString('es-CL')} - {p.status}</ListGroup.Item>
+              <ListGroup.Item key={p.id} style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                <div>{p.id} - ${p.total?.toLocaleString('es-CL')} - {p.status}</div>
+                <div>
+                  <Button size="sm" onClick={()=>setOrderDetails(p)}>Ver detalle</Button>
+                </div>
+              </ListGroup.Item>
             ))}
           </ListGroup>
         )}
@@ -108,6 +114,25 @@ export default function Perfil(){
             <Button variant="secondary" onClick={()=>{setEditingIndex(-1); setEditValue('');}}>Cancelar</Button>
             <Button onClick={handleSaveEdit}>Guardar</Button>
           </Modal.Footer>
+        </Modal>
+
+        <Modal show={!!orderDetails} onHide={()=>setOrderDetails(null)} size="lg">
+          <Modal.Header closeButton><Modal.Title>Detalle pedido</Modal.Title></Modal.Header>
+          <Modal.Body>
+            {orderDetails && (
+              <div>
+                <p><strong>ID:</strong> {orderDetails.id}</p>
+                <p><strong>Estado:</strong> {orderDetails.status}</p>
+                {orderDetails.courier && <p><strong>Envío:</strong> {orderDetails.courier} - {orderDetails.tracking}</p>}
+                <h5>Items</h5>
+                <ul>
+                  {(orderDetails.items||[]).map((it,i)=> <li key={i}>{it.nombre} x{it.cantidad} - ${Number(it.precio).toLocaleString('es-CL')}</li>)}
+                </ul>
+                <p><strong>Total:</strong> ${Number(orderDetails.total).toLocaleString('es-CL')}</p>
+              </div>
+            )}
+          </Modal.Body>
+          <Modal.Footer><Button onClick={()=>setOrderDetails(null)}>Cerrar</Button></Modal.Footer>
         </Modal>
       </Card.Body>
     </Card>

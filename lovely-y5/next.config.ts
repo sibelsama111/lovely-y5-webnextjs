@@ -1,6 +1,6 @@
 const nextConfig = ({
-  // Use Pages Router and ignore App Router directory (app/) to avoid route conflicts
-  appDir: false,
+  // Enable App Router (use app/ directory as main). Set to true to make `app/page.tsx` the homepage.
+  appDir: true,
 }) as unknown as Record<string, unknown>;
 
 export default nextConfig;
