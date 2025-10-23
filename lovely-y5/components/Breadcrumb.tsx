@@ -26,19 +26,28 @@ export default function Breadcrumb() {
       for (const path of paths) {
         currentPath += `/${path}`
         
-        // Si es una página de producto, intentamos obtener el nombre real
-        if (currentPath.startsWith('/productos/') && path.length > 3) {
-          try {
-            const res = await fetch('/api/products')
-            const products = await res.json()
-            const product = products.find((p: any) => p.id === path || p.codigo === path)
-            if (product) {
-              breadcrumbs.push({ label: product.nombre, href: currentPath })
-              continue
-            }
-          } catch (e) {
-            console.error('Error fetching product:', e)
+        // Si es una página de producto individual
+        if (currentPath.startsWith('/producto/')) {
+          // Agregar "Productos" como paso intermedio
+          if (!breadcrumbs.some(b => b.href === '/productos')) {
+            breadcrumbs.push({ label: 'Productos', href: '/productos' })
           }
+          
+          // Si es el ID del producto
+          if (path.length > 3) {
+            try {
+              const res = await fetch('/api/products')
+              const products = await res.json()
+              const product = products.find((p: any) => p.id === path || p.codigo === path)
+              if (product) {
+                breadcrumbs.push({ label: product.nombre, href: currentPath })
+                continue
+              }
+            } catch (e) {
+              console.error('Error fetching product:', e)
+            }
+          }
+          continue
         }
 
         // Para otras páginas, convertimos el slug a un título presentable
@@ -48,6 +57,9 @@ export default function Breadcrumb() {
         // Casos especiales
         switch (path) {
           case 'productos':
+            label = 'Productos'
+            break
+          case 'producto':
             label = 'Productos'
             break
           case 'carrito':
