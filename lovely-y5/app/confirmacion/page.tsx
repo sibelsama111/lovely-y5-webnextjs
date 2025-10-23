@@ -1,7 +1,9 @@
-'use client';
-import dynamic from 'next/dynamic';
-const ConfirmacionPage = dynamic(() => import('../../archive/pages_backup/confirmacion'), { ssr: false });
-
-export default function ConfirmacionWrapper(){
-  return <ConfirmacionPage />;
+// app/confirmacion/page.tsx
+export default function Confirmacion() {
+  return (
+    <div className="card p-4">
+      <h3>Compra exitosa</h3>
+      <p>Tu compra se ha realizado!. Revisa tu historial en Perfil.</p>
+    </div>
+  )
 }

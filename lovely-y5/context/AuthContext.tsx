@@ -25,7 +25,8 @@ type AuthContextProps = {
 
 export const AuthContext = createContext<AuthContextProps>({
   user: null,
-  setUser: () => {}
+  setUser: () => {},
+  logout: () => {}
 })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {

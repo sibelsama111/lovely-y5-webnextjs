@@ -1,26 +1,20 @@
-// Server-only API route to send mail using nodemailer.
-// Expects POST { to, subject, text, html }
+// pages/api/send-mail.js
+import { transporter } from '../../lib/nodemailer'
+
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  const { to, subject, text, html } = req.body || {};
-  if (!to || !subject) return res.status(400).json({ error: 'Missing fields' });
-
-  const user = process.env.MAIL_USER;
-  const pass = process.env.MAIL_PASS;
-  const host = process.env.MAIL_HOST || 'smtp.gmail.com';
-  if (!user || !pass) {
-    // no credentials -> stub
-    console.log('send-mail stub: no MAIL_USER/MAIL_PASS set. Would send to', to, subject);
-    return res.status(200).json({ ok: true, stub: true });
-  }
-
+  if (req.method !== 'POST') return res.status(405).end()
+  const { name, email, subject, message } = req.body
   try {
-    const nodemailer = await import('nodemailer');
-    const transporter = nodemailer.createTransport({ host, port: 587, secure: false, auth: { user, pass } });
-    const info = await transporter.sendMail({ from: user, to, subject, text, html });
-    return res.status(200).json({ ok: true, info });
+    await transporter.sendMail({
+      from: `"Lovely Y5" <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_USER,
+      replyTo: email,
+      subject: subject || 'Mensaje Lovely Y5',
+      html: `<h3>Mensaje</h3><p><strong>De:</strong> ${name} (${email})</p><p>${message}</p>`
+    })
+    return res.status(200).json({ ok: true })
   } catch (err) {
-    console.error('send-mail error', err);
-    return res.status(500).json({ error: err.message || String(err) });
+    console.error('send-mail error', err)
+    return res.status(500).json({ ok: false, error: String(err) })
   }
 }
