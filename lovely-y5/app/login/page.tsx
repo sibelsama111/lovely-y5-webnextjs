@@ -31,7 +31,7 @@ export default function LoginPage() {
     <div className="container">
       <div className="auth-container">
         <div className="text-center mb-4">
-          <img src="/svgs/logo.svg" alt="Lovely Y5" width={80} height={80} />
+          <img src="/logo.svg" alt="Lovely Y5" width={80} height={80} />
           <h3 className="mt-3">Iniciar sesión</h3>
         </div>
         

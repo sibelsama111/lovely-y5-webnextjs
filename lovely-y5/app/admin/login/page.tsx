@@ -28,7 +28,7 @@ export default function IntranetLogin() {
     <div className="container">
       <div className="auth-container">
         <div className="text-center mb-4">
-          <img src="/svgs/intranet-logo.svg" alt="IntraLove" width={80} height={80} />
+          <img src="/intranet-logo.svg" alt="IntraLove" width={80} height={80} />
           <h3 className="mt-3">Intranet Lovely Y5</h3>
         </div>
 

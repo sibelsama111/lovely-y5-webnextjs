@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { AuthContext } from './AuthContext';
 import { sendMailClient } from '../lib/mail';
-import { orderConfirmationClient, orderNotificationAdmin } from '../lib/emailTemplates';
+import { orderConfirmationClient, orderConfirmationAdmin } from '../lib/emailTemplates';
 
 export type CartItem = {
   id: string
@@ -114,8 +114,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try{
       const clientMail = orderConfirmationClient(order);
       sendMailClient({ to: order.shipping?.correo || order.shipping?.email, subject: clientMail.subject, html: clientMail.html, text: clientMail.text }).catch(e=>console.warn('mail client send failed', e));
-      const adminMail = orderNotificationAdmin(order);
-      sendMailClient({ to: adminMail.to || adminMail.email || adminMail.to, subject: adminMail.subject, html: adminMail.html, text: adminMail.text }).catch(e=>console.warn('mail admin send failed', e));
+      const adminMail = orderConfirmationAdmin(order);
+      sendMailClient({ to: adminMail.to, subject: adminMail.subject, html: adminMail.html, text: adminMail.text }).catch(e=>console.warn('mail admin send failed', e));
     }catch(err){ console.warn('send mail error', err); }
     clearCart();
     return order;

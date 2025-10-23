@@ -9,7 +9,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <body>
         <div className="container my-4">
           <div className="d-flex align-items-center mb-3">
-            <img src="/svgs/intranet-logo.svg" width={52} />
+            <img src="/intranet-logo.svg" width={52} />
             <h3 className="ms-3">IntraLove</h3>
             <div className="ms-auto">
               <Link href="/" className="btn btn-outline-secondary">Volver a tienda</Link>

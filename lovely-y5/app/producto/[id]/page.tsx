@@ -41,7 +41,7 @@ export default function ProductoDetalle() {
   return (
     <div className="row">
       <div className="col-md-5">
-        <img src={product.imagenes?.[0] || '/svgs/logo.svg'} className="img-fluid" alt={product.nombre} />
+        <img src={product.imagenes?.[0] || '/logo.svg'} className="img-fluid" alt={product.nombre} />
       </div>
       <div className="col-md-7">
         <h2>{product.nombre}</h2>

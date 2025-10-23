@@ -6,7 +6,7 @@ import React from 'react'
 export default function ProductCard({ product }: { product: any }) {
   return (
     <div className="card product-card h-100">
-      <img src={product.imagenes?.[0] || '/svgs/logo.svg'} className="card-img-top p-3" alt={product.nombre} />
+      <img src={product.imagenes?.[0] || '/logo.svg'} className="card-img-top p-3" alt={product.nombre} />
       <div className="card-body d-flex flex-column">
         <h5 className="card-title">{product.nombre}</h5>
         <p className="card-text mb-1">{product.marca} • {product.tipo}</p>

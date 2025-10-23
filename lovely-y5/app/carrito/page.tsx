@@ -56,7 +56,7 @@ export default function CarritoPage() {
           <div className="col-md-7">
             {cartItems.map(item => (
               <div key={item.id} className="d-flex align-items-center border p-2 mb-2">
-                <img src={item.imagenes?.[0] || '/svgs/logo.svg'} width={72} height={72} alt={item.nombre} />
+                <img src={item.imagenes?.[0] || '/logo.svg'} width={72} height={72} alt={item.nombre} />
                 <div className="ms-3 flex-grow-1">
                   <strong>{item.nombre}</strong>
                   <div>${item.precio.toLocaleString('es-CL')}</div>

@@ -15,15 +15,16 @@ export default async function handler(req, res) {
 
     // Enviar correo usando nodemailer
     try {
+      const emailTemplate = contactRequestAdmin({
+        nombre: payload.name,
+        email: payload.email,
+        telefono: payload.phone,
+        mensaje: payload.message
+      })
+
       await transporter.sendMail({
         from: `"Lovely Y5" <${process.env.EMAIL_USER}>`,
-        to: process.env.EMAIL_USER, // TODO: cambiar si quieres otro destinatario
-        subject: payload.subject || 'Nuevo mensaje desde Lovely Y5',
-        html: `<h3>Nuevo contacto</h3>
-               <p><strong>Nombre:</strong> ${payload.name}</p>
-               <p><strong>Email:</strong> ${payload.email}</p>
-               <p><strong>Asunto:</strong> ${payload.subject}</p>
-               <p><strong>Mensaje:</strong><br/>${payload.message}</p>`
+        ...emailTemplate
       })
     } catch (err) {
       console.error('Error enviando email:', err)
