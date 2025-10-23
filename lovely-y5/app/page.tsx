@@ -30,7 +30,7 @@ export default function Home() {
     <div>
       <div className="p-4 bg-white rounded shadow-sm">
         <h1>Bienvenid@ a Lovely Y5</h1>
-        <p className="lead">Ventas de tecnología — demo funcional para la evaluación.</p>
+        <p className="lead">Ventas de tecnología y servicio técnico.</p>
         <p>
           <Link href="/productos">
             <button className="btn btn-primary me-2">Ver Productos</button>
