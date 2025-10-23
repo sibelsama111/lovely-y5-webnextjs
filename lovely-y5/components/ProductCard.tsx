@@ -20,7 +20,7 @@ export default function ProductCard({ product }: { product: any }) {
     <div className="card product-card h-100">
       <img src={product.imagenes?.[0] || '/logo.svg'} className="card-img-top p-3" alt={product.nombre} />
       <div className="card-body d-flex flex-column">
-        <Link href={`/producto/${product.id}`} className="text-decoration-none">
+          <Link href={`/productos/${product.id}`} className="text-decoration-none">
           <h5 className="card-title text-dark">{product.nombre}</h5>
         </Link>
         <p className="card-text mb-1">{product.marca} • {product.tipo}</p>

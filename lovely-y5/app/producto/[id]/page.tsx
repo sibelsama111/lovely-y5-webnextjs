@@ -27,9 +27,7 @@ type ProductDetails = {
   stock: number;
 }
 
-export default function ProductoDetalle() {
-  const params = useSearchParams()
-  const id = params?.get('id') || ''
+export default function ProductoDetalle({ params }: { params: { id: string } }) {
   const [product, setProduct] = useState<ProductDetails | null>(null)
   const { addToCart } = useContext(CartContext)
   const { user } = useContext(AuthContext)
@@ -38,19 +36,19 @@ export default function ProductoDetalle() {
   const [reviews, setReviews] = useState<Review[]>([])
 
   useEffect(() => {
-    if (!id) return
+    if (!params.id) return
     fetch('/api/products').then(r => r.json()).then(list => {
-      const p = list.find((x: any) => x.id === id || x.codigo === id)
+      const p = list.find((x: any) => x.id === params.id || x.codigo === params.id)
       setProduct(p || null)
       // Intentar cargar reseñas guardadas
       try {
-        const savedReviews = JSON.parse(localStorage.getItem(`reviews_${id}`) || '[]')
+        const savedReviews = JSON.parse(localStorage.getItem(`reviews_${params.id}`) || '[]')
         setReviews(savedReviews)
       } catch (e) {
         console.error('Error cargando reseñas:', e)
       }
     })
-  }, [id])
+  }, [params.id])
 
   const add = () => {
     if (!product) return
@@ -81,7 +79,7 @@ export default function ProductoDetalle() {
     const updatedReviews = [newReview, ...reviews]
     setReviews(updatedReviews)
     // Guardar en localStorage
-    localStorage.setItem(`reviews_${id}`, JSON.stringify(updatedReviews))
+    localStorage.setItem(`reviews_${params.id}`, JSON.stringify(updatedReviews))
     setComment('')
     setRating(5)
   }
