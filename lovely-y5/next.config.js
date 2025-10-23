@@ -1,6 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  webpack: (config, { dev, isServer }) => {
+    // Eliminar la advertencia de depreciación
+    config.infrastructureLogging = {
+      level: 'error',
+    }
+    
+    return config
+  },
   // Security headers
   poweredByHeader: false,
   // Production settings
