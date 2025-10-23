@@ -232,8 +232,3 @@ export function searchProducts(query) {
 export function _resetProducts(newProducts) {
   products = newProducts
 }
-
-/** Export "for testing" */
-export function _resetProducts(newProducts) {
-  products = newProducts
-}
