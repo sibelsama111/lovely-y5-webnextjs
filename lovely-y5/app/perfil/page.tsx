@@ -34,11 +34,23 @@ function Perfil() {
         <div className="card p-3 mb-3">
           <strong>{user.primerNombre} {user.apellidos}</strong>
           <div>{user.correo} • {user.telefono}</div>
-          <div className="mt-2">Dirección predeterminada: {user.direccion}</div>
+          <div className="mt-2">Dirección predeterminada: {user.direccion || 'No especificada'}</div>
         </div>
       )}
 
-      <h5>Historial de pedidos</h5>
+      <h5 className="mt-4">Mis Direcciones</h5>
+      <div className="card p-3 mb-3">
+        <p className="text-muted">No tienes direcciones adicionales guardadas.</p>
+        <button className="btn btn-outline-primary btn-sm">Añadir nueva dirección</button>
+      </div>
+
+      <h5 className="mt-4">Mis Métodos de Pago</h5>
+      <div className="card p-3 mb-3">
+        <p className="text-muted">No tienes métodos de pago guardados.</p>
+        <button className="btn btn-outline-primary btn-sm">Añadir nuevo método de pago</button>
+      </div>
+
+      <h5 className="mt-4">Historial de pedidos</h5>
       {orders.length === 0 && <div className="text-muted">Sin pedidos aún.</div>}
       {orders.map(o => (
         <div key={o.id} className="border p-2 mb-2">

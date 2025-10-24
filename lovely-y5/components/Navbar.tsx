@@ -21,6 +21,11 @@ export default function Navbar() {
         <Link href="/" className="navbar-brand d-flex align-items-center">
           <img src="/logo.svg" alt="Lovely Y5" width={40} height={40} />
           <span className="ms-2 fw-bold">Lovely Y5</span>
+          {user && (
+            <Link href="/perfil" className="nav-link ms-3 p-0 text-primary fw-bold">
+              Hola, {user.primerNombre}! &lt;3
+            </Link>
+          )}
         </Link>
 
         <button className="navbar-toggler" onClick={() => setOpen(!open)}>
@@ -36,8 +41,6 @@ export default function Navbar() {
 
             {!user && <li className="nav-item"><Link href="/login" className="nav-link">Login</Link></li>}
             {user && <>
-              <li className="nav-item"><span className="nav-link">Hola, {user.primerNombre}! &lt;3</span></li>
-              <li className="nav-item"><Link href="/perfil" className="nav-link">Perfil</Link></li>
               <li className="nav-item"><button className="btn btn-link nav-link" onClick={logout}>Cerrar Sesión</button></li>
             </>}
             <li className="nav-item ms-2">
