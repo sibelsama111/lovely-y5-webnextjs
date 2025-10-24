@@ -15,6 +15,7 @@ export type UserType = {
   puesto?: string
   sueldoBase?: number
   orders?: any[]
+  rol?: 'cliente' | 'trabajador' | 'admin'
 }
 
 type AuthContextProps = {
