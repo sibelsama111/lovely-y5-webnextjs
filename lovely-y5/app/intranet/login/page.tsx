@@ -59,51 +59,93 @@ export default function LoginTrabajadorPage() {
   }
 
   return (
-    <div className="container my-5">
+    <div className="container py-5">
       <div className="row justify-content-center">
-        <div className="col-md-6">
+        <div className="col-md-8">
+          <div className="text-center mb-4">
+            <p className="text-muted">Ingresa a tu cuenta seleccionando tu sede y rol de usuario.</p>
+          </div>
+
           <div className="card">
             <div className="card-body">
-              <h2 className="text-center mb-4">Acceso Trabajadores</h2>
+              {/* Pestañas de sede */}
+              <div className="d-flex justify-content-center mb-3">
+                <div className="btn-group" role="group" aria-label="Sedes">
+                  <button type="button" className="btn btn-outline-primary active">Santiago</button>
+                  <button type="button" className="btn btn-outline-primary">Viña del Mar</button>
+                </div>
+              </div>
+
               <form onSubmit={handleSubmit}>
-                <div className="mb-3">
-                  <label className="form-label">Email</label>
-                  <input
-                    type="email"
-                    className={`form-control ${errors.email ? 'is-invalid' : ''}`}
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    required
-                  />
-                  {errors.email && (
-                    <div className="invalid-feedback">{errors.email}</div>
-                  )}
+                <div className="row mb-3 justify-content-center">
+                  <div className="col-6 col-md-4">
+                    <label className="form-label">RUT</label>
+                    <div className="d-flex">
+                      <input
+                        type="text"
+                        className={`form-control me-2`}
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        placeholder="12345678-9"
+                        required
+                      />
+                      <input
+                        type="text"
+                        className="form-control" 
+                        style={{maxWidth: '60px'}}
+                        placeholder="DV"
+                        aria-label="DV"
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                <div className="mb-3">
-                  <label className="form-label">Contraseña</label>
-                  <input
-                    type="password"
-                    className={`form-control ${errors.password ? 'is-invalid' : ''}`}
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    required
-                  />
-                  {errors.password && (
-                    <div className="invalid-feedback">{errors.password}</div>
-                  )}
+                <div className="row mb-3 justify-content-center">
+                  <div className="col-8 col-md-6">
+                    <label className="form-label">Contraseña</label>
+                    <input
+                      type="password"
+                      className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      required
+                    />
+                    {errors.password && (
+                      <div className="invalid-feedback">{errors.password}</div>
+                    )}
+                  </div>
                 </div>
 
-                <button type="submit" className="btn btn-primary w-100 mb-3">
-                  Iniciar Sesión
-                </button>
+                <div className="row mb-3 justify-content-center">
+                  <div className="col-8 col-md-4">
+                    <label className="form-label">-- Rol usuario</label>
+                    <select className="form-select">
+                      <option>-- Rol usuario</option>
+                      <option value="trabajador">Trabajador</option>
+                      <option value="admin">Administrador</option>
+                    </select>
+                  </div>
+                </div>
 
-                <div className="text-center">
-                  <Link href="/intranet/registro" className="text-decoration-none">
-                    ¿Eres trabajador y no tienes cuenta? Regístrate aquí
-                  </Link>
+                <div className="row mb-3 justify-content-center">
+                  <div className="col-8 col-md-6 text-center">
+                    <a href="#" className="d-block mb-3">¿Olvidó su contraseña?</a>
+                    <button type="submit" className="btn btn-primary px-5">Entrar</button>
+                  </div>
                 </div>
               </form>
+            </div>
+          </div>
+
+          {/* Footer social simple al estilo del sitio */}
+          <div className="text-center mt-5">
+            <p className="text-muted">Síguenos en redes sociales:</p>
+            <div className="d-flex justify-content-center gap-3">
+              <img src="/facebook.svg" alt="fb" width={36} />
+              <img src="/twitter.svg" alt="tw" width={36} />
+              <img src="/instagram.svg" alt="ig" width={36} />
+              <img src="/linkedin.svg" alt="ln" width={36} />
+              <img src="/youtube.svg" alt="yt" width={36} />
             </div>
           </div>
         </div>

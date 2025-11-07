@@ -7,30 +7,12 @@ import Link from 'next/link'
 export default function IntranetPage() {
   const { user } = useContext(AuthContext)
   const router = useRouter()
-
+  // Si no hay usuario autenticado, redirigimos automáticamente al formulario de login
   if (!user) {
-    return (
-      <div className="container my-5">
-        <div className="row justify-content-center">
-          <div className="col-md-6">
-            <div className="card">
-              <div className="card-body text-center">
-                <h2 className="mb-4">Intranet Lovely Y5</h2>
-                <p className="mb-4">Acceso exclusivo para trabajadores</p>
-                <div className="d-grid gap-3">
-                  <Link href="/intranet/login" className="btn btn-primary">
-                    Iniciar Sesión
-                  </Link>
-                  <Link href="/intranet/registro" className="btn btn-outline-secondary">
-                    Registrarse como trabajador
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    if (typeof window !== 'undefined') {
+      router.push('/intranet/login')
+    }
+    return null
   }
 
   // Si el usuario ya está autenticado y es trabajador
