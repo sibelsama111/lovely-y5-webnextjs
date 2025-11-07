@@ -7,6 +7,7 @@ import Footer from '../components/Footer'
 import FloatingCart from '../components/FloatingCart'
 import Breadcrumb from '../components/Breadcrumb'
 import { Toaster } from 'react-hot-toast'
+import Link from 'next/link'
 
 export const metadata = {
   title: process.env.NEXT_PUBLIC_SITE_NAME || 'Lovely Y5',
@@ -20,6 +21,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <CartProvider>
             <Navbar />
+            {/* Botón fijo para Farmacias de turno */}
+            <div className="turno-button-wrapper">
+              <Link href="/farmacias-de-turno">
+                <a className="turno-button pulse" aria-label="Farmacias de turno">
+                  <span className="heart">❤️</span>
+                  Farmacias de turno
+                </a>
+              </Link>
+            </div>
             <main className="container my-4" style={{ minHeight: '65vh' }}>
               <Breadcrumb />
               {children}

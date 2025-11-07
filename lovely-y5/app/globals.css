@@ -172,3 +172,50 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-dark);
   border-bottom: 1px solid var(--primary);
 }
+
+/* Botón Farmacias de turno (fijo, esquina superior derecha) */
+.turno-button-wrapper {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 1050;
+}
+
+.turno-button {
+  display: inline-block;
+  background: #dc3545; /* rojo */
+  color: #fff;
+  border: none;
+  padding: 0.6rem 0.9rem;
+  border-radius: 999px;
+  font-weight: 700;
+  box-shadow: 0 6px 18px rgba(220,53,69,0.25);
+  cursor: pointer;
+  transform-origin: center;
+}
+
+.turno-button .heart {
+  display: inline-block;
+  margin-right: 0.5rem;
+  transform-origin: center;
+}
+
+/* Pulsación tipo corazón */
+@keyframes heartbeat {
+  0% { transform: scale(1); }
+  14% { transform: scale(1.12); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.08); }
+  70% { transform: scale(1); }
+}
+
+.turno-button.pulse .heart,
+.turno-button.pulse {
+  animation: heartbeat 1.6s infinite ease-in-out;
+}
+
+/* Responsive: no cubrir elementos en pantallas pequeñas */
+@media (max-width: 576px) {
+  .turno-button-wrapper { top: 12px; right: 12px; }
+  .turno-button { padding: 0.45rem 0.7rem; font-size: 0.9rem; }
+}
