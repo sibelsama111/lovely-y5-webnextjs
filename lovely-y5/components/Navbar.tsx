@@ -43,9 +43,7 @@ export default function Navbar() {
             {user && <>
               <li className="nav-item"><button className="btn btn-link nav-link" onClick={logout}>Cerrar Sesión</button></li>
             </>}
-            <li className="nav-item ms-2">
-              <Link href="/admin" className="btn btn-outline-secondary">Intranet</Link>
-            </li>
+            {/* Intranet link removed — el acceso se realiza desde /login */}
           </ul>
         </div>
       </div>

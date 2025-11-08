@@ -242,7 +242,8 @@ h1, h2, h3, h4, h5, h6 {
   /* Mover carrito a la esquina inferior izquierda para no solapar con el botón de farmacias */
   left: 20px;
   bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
-  z-index: 1060; /* encima de la mayoría de elementos */
+  /* z-index elevado para garantizar que quede sobre el footer y otros elementos */
+  z-index: 9999;
 }
 
 .floating-cart-button img { display: block; }
