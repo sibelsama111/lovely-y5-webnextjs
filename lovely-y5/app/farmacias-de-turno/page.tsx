@@ -1,5 +1,7 @@
 'use client'
 import { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 type Farmacia = Record<string, any>
 
@@ -11,6 +13,25 @@ export default function FarmaciasTurnoPage() {
   const [comunaFilter, setComunaFilter] = useState('')
   const [timeFrom, setTimeFrom] = useState('')
   const [timeTo, setTimeTo] = useState('')
+  const [regionFilter, setRegionFilter] = useState('')
+  const [userLocation, setUserLocation] = useState<{lat:number, lon:number} | null>(null)
+  const [sortByDistance, setSortByDistance] = useState(false)
+
+  const locateAndSort = () => {
+    if (typeof window === 'undefined' || !('geolocation' in navigator)) {
+      alert('Geolocation no está disponible en este navegador')
+      return
+    }
+    navigator.geolocation.getCurrentPosition((pos) => {
+      const lat = pos.coords.latitude
+      const lon = pos.coords.longitude
+      setUserLocation({lat, lon})
+      setSortByDistance(true)
+    }, (err) => {
+      console.error('Error al obtener ubicación', err)
+      alert('No se pudo obtener la ubicación')
+    })
+  }
 
   useEffect(() => {
     let mounted = true
@@ -49,6 +70,15 @@ export default function FarmaciasTurnoPage() {
     return Array.from(s).sort((a,b)=>a.localeCompare(b))
   }, [items])
 
+  const regions = useMemo(() => {
+    const s = new Set<string>()
+    items.forEach(it => {
+      const r = getRegionCode(it)
+      if (r) s.add(String(r))
+    })
+    return Array.from(s).sort((a,b)=>Number(a)-Number(b))
+  }, [items])
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
     const from = parseTime(timeFrom)
@@ -56,10 +86,18 @@ export default function FarmaciasTurnoPage() {
 
     return items
       .filter(it => {
-        // texto
+        // texto (buscar en campos comunes y en nombre de región)
         if (q) {
-          const text = JSON.stringify(it).toLowerCase()
-          if (!text.includes(q)) return false
+          const textFields = [getName(it), getDireccion(it), getTelefono(it), getComuna(it), getLocalidad(it), getRegionCode(it) ? getRegionName(String(getRegionCode(it))) : '']
+            .map(v => String(v || '').toLowerCase())
+            .join(' ')
+          if (!textFields.includes(q) && !JSON.stringify(it).toLowerCase().includes(q)) return false
+        }
+        // region
+        if (regionFilter) {
+          const rc = String(getRegionCode(it) || '').toLowerCase()
+          const rn = (getRegionName(rc) || '').toLowerCase()
+          if (rc !== regionFilter.toLowerCase() && rn !== regionFilter.toLowerCase()) return false
         }
         // comuna
         if (comunaFilter) {
@@ -80,23 +118,44 @@ export default function FarmaciasTurnoPage() {
         return true
       })
       .sort((a,b) => {
+        if (sortByDistance && userLocation) {
+          const da = distanceBetween(userLocation, getCoords(a) || userLocation)
+          const db = distanceBetween(userLocation, getCoords(b) || userLocation)
+          return da - db
+        }
         const na = (getName(a) || '').toLowerCase()
         const nb = (getName(b) || '').toLowerCase()
         return na.localeCompare(nb)
       })
-  }, [items, query, comunaFilter, timeFrom, timeTo])
+  }, [items, query, comunaFilter, timeFrom, timeTo, regionFilter, sortByDistance, userLocation])
 
   return (
     <div className="container py-4">
+      {/* Fixed small header: fecha/hora + breadcrumb (top-left under navbar) */}
+      <div style={{position:'fixed', top:70, left:12, zIndex:1050}}>
+        <div style={{background:'#fff', padding:'8px 12px', borderRadius:8, boxShadow:'0 2px 8px rgba(0,0,0,0.08)'}}>
+          <div style={{fontSize:12, color:'#333', fontWeight:600}}>{formatNow()}</div>
+          <div style={{fontSize:12, marginTop:4}}>
+            <BreadcrumbCompact />
+          </div>
+        </div>
+      </div>
+
       <h2 className="mb-4">Farmacias de turno</h2>
 
       <div className="card mb-4">
         <div className="card-body">
           <div className="row g-2 align-items-center">
-            <div className="col-md-4">
-              <input className="form-control" placeholder="Buscar por nombre, dirección, teléfono..." value={query} onChange={(e)=>setQuery(e.target.value)} />
-            </div>
             <div className="col-md-3">
+              <input className="form-control" placeholder="Buscar por nombre, dirección, teléfono, localidad..." value={query} onChange={(e)=>setQuery(e.target.value)} />
+            </div>
+            <div className="col-md-2">
+              <select className="form-select" value={regionFilter} onChange={(e)=>setRegionFilter(e.target.value)}>
+                <option value="">Todas las regiones</option>
+                {regions.map(r => <option key={r} value={r}>{getRegionName(r) || r}</option>)}
+              </select>
+            </div>
+            <div className="col-md-2">
               <select className="form-select" value={comunaFilter} onChange={(e)=>setComunaFilter(e.target.value)}>
                 <option value="">Todas las comunas</option>
                 {comunas.map(c => <option key={c} value={c}>{c}</option>)}
@@ -108,8 +167,9 @@ export default function FarmaciasTurnoPage() {
             <div className="col-md-2">
               <input type="time" className="form-control" value={timeTo} onChange={e=>setTimeTo(e.target.value)} />
             </div>
-            <div className="col-md-1 text-end">
-              <button className="btn btn-outline-secondary" onClick={()=>{ setQuery(''); setComunaFilter(''); setTimeFrom(''); setTimeTo('') }}>Limpiar</button>
+            <div className="col-md-1 d-flex gap-1">
+              <button className="btn btn-outline-primary" onClick={()=>locateAndSort()}>Cerca de mi</button>
+              <button className="btn btn-outline-secondary" onClick={()=>{ setQuery(''); setComunaFilter(''); setTimeFrom(''); setTimeTo(''); setRegionFilter(''); setSortByDistance(false); setUserLocation(null) }}>Limpiar</button>
             </div>
           </div>
         </div>
@@ -137,17 +197,12 @@ export default function FarmaciasTurnoPage() {
                     <span style={{fontSize:18}}>🏥</span>
                   </div>
                   <h5 className="card-title" style={{color:'#3b0b87', fontWeight:700}}>{nombre}</h5>
-                  <div className="mb-1" style={{color:'#6f6f6f', textTransform:'uppercase'}}>{comuna}</div>
-                  <div className="mb-1">
-                    <div style={{textDecoration:'underline', textDecorationStyle:'dotted', color:'#3b0b87', fontWeight:600}}>{direccion}</div>
-                  </div>
-                  <div className="mb-1" style={{color:'#333'}}><strong>Horario hoy:</strong> {horarioDisplay || '—'}</div>
-                  <div className="mb-3" style={{color:'#333'}}><strong>Teléfono:</strong> {telefono}</div>
-                  <div>
-                    <div className={"btn " + (openState ? 'btn-success' : openState === false ? 'btn-danger' : 'btn-secondary')} style={{width:'100%', borderRadius:20}}>
-                      {openState === null ? 'Horario no disponible' : openState ? 'Farmacia abierta' : 'Cerrado'}
-                    </div>
-                  </div>
+                  <div className="mb-1" style={{color:'#333'}}><strong>Horario:</strong> {horarioDisplay || '—'}</div>
+                  <div className="mb-1" style={{color:'#333'}}><strong>Dirección:</strong> {direccion}</div>
+                  <div className="mb-1" style={{color:'#6f6f6f'}}><strong>Localidad:</strong> {cleanText(getLocalidad(f)) || '—'}</div>
+                  <div className="mb-1" style={{color:'#6f6f6f'}}><strong>Comuna:</strong> {comuna}</div>
+                  <div className="mb-1" style={{color:'#6f6f6f'}}><strong>Región:</strong> {getRegionName(getRegionCode(f) || '') || '—'}</div>
+                  <div className="mb-0" style={{color:'#333'}}><strong>Teléfono:</strong> {telefono}</div>
                 </div>
               </div>
             </div>
@@ -291,4 +346,122 @@ function formatHorarioForDisplay(horario: string | null) {
     else pairs.push(a)
   }
   return pairs.join(' / ')
+}
+
+// --- Región / ubicación / utilidades ---
+function getLocalidad(item: Farmacia) {
+  return (item.localidad || item.localidad_nombre || item.localidadNombre || item.localidad_local || item.localidadName)
+}
+
+function getRegionCode(item: Farmacia) {
+  // busca varias claves que puedan contener la región
+  const v = item.region || item.fk_region || item.region_id || item.cod_region || item.codigo_region || item.REGION
+  if (v == null) return null
+  const s = String(v).trim()
+  // si viene en formato roman like 'V' -> map later
+  return s
+}
+
+function getRegionName(code: string | number | null) {
+  if (code == null) return ''
+  const c = String(code).trim()
+  const map: Record<string,string> = {
+    '1': 'I Región de Tarapacá',
+    '2': 'II Región de Antofagasta',
+    '3': 'III Región de Atacama',
+    '4': 'IV Región de Coquimbo',
+    '5': 'V Región de Valparaíso',
+    '6': 'VI Región del Libertador General Bernardo O’Higgins',
+    '7': 'VII Región del Maule',
+    '8': 'VIII Región del Biobío',
+    '9': 'IX Región de La Araucanía',
+    '10': 'X Región de Los Lagos',
+    '11': 'XI Región de Aysén del General Carlos Ibáñez del Campo',
+    '12': 'XII Región de Magallanes y de la Antártica Chilena',
+    '13': 'Región Metropolitana de Santiago',
+    '14': 'XIV Región de Los Ríos',
+    '15': 'XV Región de Arica y Parinacota',
+    '16': 'XVI Región de Ñuble',
+    'RM': 'Región Metropolitana de Santiago',
+    'V': 'V Región de Valparaíso'
+  }
+  return map[c] || map[String(Number(c))] || ''
+}
+
+function getCoords(item: Farmacia): {lat:number, lon:number} | null {
+  const latKeys = ['lat', 'latitude', 'latitud', 'y', 'posy']
+  const lonKeys = ['lon', 'lng', 'longitude', 'longitud', 'x', 'posx']
+  let lat:number|undefined, lon:number|undefined
+  for (const k of latKeys) {
+    if (k in item && item[k] != null) { lat = Number(String(item[k]).replace(',', '.')); break }
+  }
+  for (const k of lonKeys) {
+    if (k in item && item[k] != null) { lon = Number(String(item[k]).replace(',', '.')); break }
+  }
+  if (typeof lat === 'number' && !Number.isNaN(lat) && typeof lon === 'number' && !Number.isNaN(lon)) return {lat, lon}
+  // sometimes coordinates come as 'lat,lon' in a single field
+  for (const k of Object.keys(item)) {
+    const v = item[k]
+    if (typeof v === 'string' && v.includes(',')) {
+      const parts = v.split(',').map(p=>p.trim())
+      if (parts.length === 2) {
+        const a = Number(parts[0].replace(',', '.'))
+        const b = Number(parts[1].replace(',', '.'))
+        if (!Number.isNaN(a) && !Number.isNaN(b)) return {lat:a, lon:b}
+      }
+    }
+  }
+  return null
+}
+
+function distanceBetween(a:{lat:number, lon:number}, b:{lat:number, lon:number}) {
+  const toRad = (v:number) => v * Math.PI / 180
+  const R = 6371 // km
+  const dLat = toRad(b.lat - a.lat)
+  const dLon = toRad(b.lon - a.lon)
+  const lat1 = toRad(a.lat)
+  const lat2 = toRad(b.lat)
+  const sinDLat = Math.sin(dLat/2)
+  const sinDLon = Math.sin(dLon/2)
+  const aa = sinDLat*sinDLat + Math.cos(lat1)*Math.cos(lat2)*sinDLon*sinDLon
+  const c = 2 * Math.atan2(Math.sqrt(aa), Math.sqrt(1-aa))
+  return R * c
+}
+function formatNow() {
+  const now = new Date()
+  const days = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']
+  const dd = String(now.getDate()).padStart(2,'0')
+  const mm = String(now.getMonth()+1).padStart(2,'0')
+  const yyyy = now.getFullYear()
+  const hh = String(now.getHours()).padStart(2,'0')
+  const min = String(now.getMinutes()).padStart(2,'0')
+  return `${days[now.getDay()]} ${dd}/${mm}/${yyyy} ${hh}:${min}`
+}
+
+// Compact breadcrumb for top-left
+function BreadcrumbCompact() {
+  const pathname = usePathname() || '/'
+  const parts = pathname.split('/').filter(Boolean)
+  const crumbs = [{label:'HOME', href:'/'}]
+  let cur = ''
+  parts.forEach(p => {
+    cur += `/${p}`
+    let label = p.replace(/-/g,' ').toUpperCase()
+    if (p === 'producto') label = 'PRODUCTOS'
+    crumbs.push({label, href: cur})
+  })
+  return (
+    <div style={{display:'flex', gap:6, alignItems:'center'}}>
+      {crumbs.map((c, i) => (
+        <span key={c.href} style={{fontSize:12}}>
+          {i>0 && <span style={{color:'#666'}}>→ </span>}
+          {i === crumbs.length-1 ? (
+            <span style={{fontWeight:600}}>{c.label}</span>
+          ) : (
+            <Link href={c.href} className="text-decoration-none" style={{color:'#3b0b87'}}>{c.label}</Link>
+          )}
+        </span>
+      ))}
+    </div>
+  )
 }

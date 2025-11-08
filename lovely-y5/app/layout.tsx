@@ -21,13 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <CartProvider>
             <Navbar />
-            {/* Botón fijo para Farmacias de turno */}
-            <div className="turno-button-wrapper">
-              <Link href="/farmacias-de-turno" className="turno-button pulse" aria-label="Farmacias de turno">
-                <span className="heart">❤️</span>
-                Farmacias de turno
-              </Link>
-            </div>
+            {/* El botón/fecha de 'Farmacias de turno' se renderiza solo en la página específica */}
             <main className="container my-4" style={{ minHeight: '65vh' }}>
               <Breadcrumb />
               {children}
