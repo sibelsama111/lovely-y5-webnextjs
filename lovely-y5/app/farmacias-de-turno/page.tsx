@@ -163,9 +163,9 @@ export default function FarmaciasTurnoPage() {
             <div className="col-md-2">
               <input type="time" className="form-control" value={timeTo} onChange={e=>setTimeTo(e.target.value)} />
             </div>
-            <div className="col-md-1 d-flex gap-1">
-              <button className="btn btn-outline-primary" onClick={()=>locateAndSort()}>Cerca de mi</button>
-              <button className="btn btn-outline-secondary" onClick={()=>{ setQuery(''); setComunaFilter(''); setTimeFrom(''); setTimeTo(''); setRegionFilter(''); setSortByDistance(false); setUserLocation(null) }}>Limpiar</button>
+            <div className="col-md-2 d-flex justify-content-end gap-2">
+              <button className="btn btn-outline-primary btn-sm" onClick={()=>locateAndSort()}>Cerca de mi</button>
+              <button className="btn btn-outline-secondary btn-sm" onClick={()=>{ setQuery(''); setComunaFilter(''); setTimeFrom(''); setTimeTo(''); setRegionFilter(''); setSortByDistance(false); setUserLocation(null) }}>Limpiar</button>
             </div>
           </div>
         </div>
