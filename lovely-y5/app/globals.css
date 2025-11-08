@@ -239,8 +239,8 @@ h1, h2, h3, h4, h5, h6 {
    trasladados a CSS para poder aplicar media queries y evitar solapamientos */
 .floating-cart-wrapper {
   position: fixed;
-  right: 20px;
-  /* Mostrar en la esquina inferior derecha por defecto, con margen del safe area */
+  /* Mover carrito a la esquina inferior izquierda para no solapar con el botón de farmacias */
+  left: 20px;
   bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
   z-index: 1060; /* encima de la mayoría de elementos */
 }
@@ -250,8 +250,8 @@ h1, h2, h3, h4, h5, h6 {
 /* En pantallas pequeñas movemos el carrito a la esquina inferior derecha
    y el botón de turno se coloca debajo del navbar para no solaparse */
 @media (max-width: 768px) {
-  /* En móviles mantener el carrito en bottom-right y empujar un poco hacia la esquina */
-  .floating-cart-wrapper { right: 12px; bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); }
+  /* En móviles mantener el carrito en bottom-left y empujar un poco hacia la esquina */
+  .floating-cart-wrapper { left: 12px; bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); }
   .turno-button-wrapper { top: calc(var(--navbar-height, 56px) + 8px); right: 12px; }
   .turno-button { padding: 0.45rem 0.7rem; font-size: 0.9rem; }
 }
