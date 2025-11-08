@@ -214,6 +214,21 @@ h1, h2, h3, h4, h5, h6 {
   animation: heartbeat 1.6s infinite ease-in-out;
 }
 
+/* Breadcrumb fijo en la esquina superior izquierda, justo debajo del navbar */
+.breadcrumb-fixed {
+  position: fixed;
+  left: 18px;
+  top: calc(var(--navbar-height, 56px) + 8px);
+  z-index: 1055;
+  background: transparent;
+  padding: 0.15rem 0.25rem;
+}
+
+@media (max-width: 576px) {
+  .breadcrumb-fixed { left: 8px; top: calc(var(--navbar-height, 56px) + 6px); }
+  .breadcrumb-fixed .breadcrumb-item { font-size: 12px; }
+}
+
 /* Responsive: no cubrir elementos en pantallas pequeñas */
 @media (max-width: 576px) {
   .turno-button-wrapper { top: 12px; right: 12px; }
@@ -225,8 +240,8 @@ h1, h2, h3, h4, h5, h6 {
 .floating-cart-wrapper {
   position: fixed;
   right: 20px;
-  /* Mantener fijo debajo del navbar usando una variable, por defecto 56px */
-  top: calc(var(--navbar-height, 56px) + 12px);
+  /* Mostrar en la esquina inferior derecha por defecto, con margen del safe area */
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
   z-index: 1060; /* encima de la mayoría de elementos */
 }
 
@@ -235,9 +250,8 @@ h1, h2, h3, h4, h5, h6 {
 /* En pantallas pequeñas movemos el carrito a la esquina inferior derecha
    y el botón de turno se coloca debajo del navbar para no solaparse */
 @media (max-width: 768px) {
-  /* En móviles mantener el carrito visible debajo del navbar y
-     reducir márgenes para no tapar contenido */
-  .floating-cart-wrapper { right: 12px; top: calc(var(--navbar-height, 56px) + 8px); }
+  /* En móviles mantener el carrito en bottom-right y empujar un poco hacia la esquina */
+  .floating-cart-wrapper { right: 12px; bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); }
   .turno-button-wrapper { top: calc(var(--navbar-height, 56px) + 8px); right: 12px; }
   .turno-button { padding: 0.45rem 0.7rem; font-size: 0.9rem; }
 }

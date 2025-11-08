@@ -88,20 +88,20 @@ export default function Breadcrumb() {
   if (items.length <= 1) return null
 
   return (
-    <nav aria-label="breadcrumb" className="mb-4">
-      <ol className="breadcrumb">
+    <nav aria-label="breadcrumb" className="breadcrumb-fixed">
+      <ol className="breadcrumb mb-0">
         {items.map((item, index) => {
           const isLast = index === items.length - 1
           return (
             <li 
               key={item.href}
-              className={`breadcrumb-item${isLast ? ' active' : ''}`}
+              className={`breadcrumb-item d-inline-block me-2${isLast ? ' active' : ''}`}
               {...(isLast && { 'aria-current': 'page' })}
             >
               {isLast ? (
-                item.label
+                <span className="text-muted small">{item.label}</span>
               ) : (
-                <Link href={item.href} className="text-decoration-none">
+                <Link href={item.href} className="text-decoration-none small">
                   {item.label}
                 </Link>
               )}
