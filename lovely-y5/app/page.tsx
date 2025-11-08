@@ -32,12 +32,8 @@ export default function Home() {
         <h1>Bienvenid@ a Lovely Y5</h1>
         <p className="lead">Ventas de tecnología y servicio técnico.</p>
         <p>
-          <Link href="/productos">
-            <button className="btn btn-primary me-2">Ver Productos</button>
-          </Link>
-          <Link href="/contacto">
-            <button className="btn btn-outline-secondary">Contacto</button>
-          </Link>
+          <Link href="/productos" className="btn btn-primary me-2">Ver Productos</Link>
+          <Link href="/contacto" className="btn btn-outline-secondary">Contacto</Link>
         </p>
       </div>
 

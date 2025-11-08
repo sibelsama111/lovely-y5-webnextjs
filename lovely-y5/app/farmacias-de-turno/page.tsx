@@ -194,4 +194,3 @@ function parseTime(t: string | null | undefined) {
   const mm = Number(m[2])
   return hh * 60 + mm
 }
-*** End Patch

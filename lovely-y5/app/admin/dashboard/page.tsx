@@ -28,12 +28,12 @@ function DashboardInner() {
         <div className="col-md-4 card p-3 m-2">
           <h5>Pedidos</h5>
           <div>{orders.length} totales</div>
-          <Link href="/intranet/pedidos"><a className="btn btn-sm btn-primary mt-2">Ver pedidos</a></Link>
+          <Link href="/intranet/pedidos" className="btn btn-sm btn-primary mt-2">Ver pedidos</Link>
         </div>
         <div className="col-md-4 card p-3 m-2">
           <h5>Productos</h5>
           <div>{products.length} en catálogo</div>
-          <Link href="/intranet/productos"><a className="btn btn-sm btn-primary mt-2">Gestionar productos</a></Link>
+          <Link href="/intranet/productos" className="btn btn-sm btn-primary mt-2">Gestionar productos</Link>
         </div>
       </div>
     </div>

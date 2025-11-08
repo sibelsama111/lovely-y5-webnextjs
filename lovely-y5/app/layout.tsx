@@ -23,11 +23,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Navbar />
             {/* Botón fijo para Farmacias de turno */}
             <div className="turno-button-wrapper">
-              <Link href="/farmacias-de-turno">
-                <a className="turno-button pulse" aria-label="Farmacias de turno">
-                  <span className="heart">❤️</span>
-                  Farmacias de turno
-                </a>
+              <Link href="/farmacias-de-turno" className="turno-button pulse" aria-label="Farmacias de turno">
+                <span className="heart">❤️</span>
+                Farmacias de turno
               </Link>
             </div>
             <main className="container my-4" style={{ minHeight: '65vh' }}>
