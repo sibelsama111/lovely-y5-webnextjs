@@ -34,11 +34,8 @@ export default function FloatingCart() {
   return (
     <div
       aria-hidden={hidden}
+      className="floating-cart-wrapper"
       style={{
-        position: 'fixed',
-        right: 20,
-        top: 80,
-        zIndex: 1050,
         transition: 'opacity 180ms ease, transform 180ms ease',
         opacity: hidden ? 0 : 1,
         transform: hidden ? 'scale(0.92)' : 'scale(1)'
@@ -46,7 +43,7 @@ export default function FloatingCart() {
     >
       <Link
         href="/carrito"
-        className="d-flex align-items-center justify-content-center"
+        className="d-flex align-items-center justify-content-center floating-cart-button"
         style={{
           width: size,
           height: size,

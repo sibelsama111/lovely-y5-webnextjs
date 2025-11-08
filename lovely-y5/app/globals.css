@@ -219,3 +219,31 @@ h1, h2, h3, h4, h5, h6 {
   .turno-button-wrapper { top: 12px; right: 12px; }
   .turno-button { padding: 0.45rem 0.7rem; font-size: 0.9rem; }
 }
+
+/* Posicionamiento y comportamiento del carrito flotante y botón de turno
+   trasladados a CSS para poder aplicar media queries y evitar solapamientos */
+.floating-cart-wrapper {
+  position: fixed;
+  right: 20px;
+  top: 80px;
+  z-index: 1050;
+}
+
+.floating-cart-button img { display: block; }
+
+/* En pantallas pequeñas movemos el carrito a la esquina inferior derecha
+   y el botón de turno se coloca debajo del navbar para no solaparse */
+@media (max-width: 768px) {
+  .floating-cart-wrapper { right: 12px; top: auto; bottom: 16px; }
+  .turno-button-wrapper { top: calc(56px + 8px); right: 12px; }
+  .turno-button { padding: 0.45rem 0.7rem; font-size: 0.9rem; }
+}
+
+/* En pantallas grandes empujamos el botón de turno a la izquierda para
+   no solaparse con el carrito (que suele ir a la derecha) */
+@media (min-width: 769px) {
+  .turno-button-wrapper { right: 110px; top: 80px; }
+}
+
+/* Extra: si el navbar cambia de altura, se puede ajustar la variable
+   --navbar-height y usarla en la regla anterior. */
