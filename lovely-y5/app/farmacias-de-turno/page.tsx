@@ -178,7 +178,8 @@ export default function FarmaciasTurnoPage() {
         {filtered.map((f, idx) => {
           const nombre = formatDisplayName(getName(f))
           const comuna = cleanText(getComuna(f)) || '—'
-          const direccion = formatDisplayAddress(getDireccion(f)) || '—'
+          // Mostrar únicamente el campo local_direccion tal y como viene en el JSON
+          const direccion = getLocalDireccion(f) || '—'
           const horarioRaw = getHorarioFromFields(f) || getHorarioString(f)
           const horarioDisplay = horarioRaw ? (getHorarioFromFields(f) ? horarioRaw : formatHorarioForDisplay(horarioRaw)) : '—'
           const telefono = getLocalTelefono(f) || (formatPhoneString(getTelefono(f)) || '—')
@@ -370,6 +371,15 @@ function formatHorarioForDisplay(horario: string | null) {
 // --- Región / ubicación / utilidades ---
 function getLocalidad(item: Farmacia) {
   return (item.localidad || item.localidad_nombre || item.localidadNombre || item.localidad_local || item.localidadName)
+}
+
+function getLocalDireccion(item: Farmacia) {
+  if (!item) return null
+  // devolver exactamente el campo local_direccion si existe
+  if (item.local_direccion) return String(item.local_direccion)
+  if (item.localDireccion) return String(item.localDireccion)
+  if (item.direccion_local) return String(item.direccion_local)
+  return null
 }
 
 function getRegionCode(item: Farmacia) {
