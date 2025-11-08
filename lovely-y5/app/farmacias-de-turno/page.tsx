@@ -119,19 +119,40 @@ export default function FarmaciasTurnoPage() {
       {error && <div className="alert alert-danger">{error}</div>}
 
       <div className="row g-3">
-        {filtered.map((f, idx) => (
-          <div key={idx} className="col-md-6">
-            <div className="card">
-              <div className="card-body">
-                <h5 className="card-title">{getName(f) || '—'}</h5>
-                <p className="mb-1"><strong>Comuna:</strong> {getComuna(f) || '—'}</p>
-                <p className="mb-1"><strong>Dirección:</strong> {getDireccion(f) || '—'}</p>
-                <p className="mb-1"><strong>Horario:</strong> {getHorarioString(f) || '—'}</p>
-                <p className="mb-0"><strong>Teléfono:</strong> {getTelefono(f) || '—'}</p>
+        {filtered.map((f, idx) => {
+          const nombre = formatDisplayName(getName(f))
+          const comuna = cleanText(getComuna(f)) || '—'
+          const direccion = formatDisplayAddress(getDireccion(f)) || '—'
+          const horarioRaw = getHorarioString(f)
+          const horarioDisplay = formatHorarioForDisplay(horarioRaw)
+          const telefono = formatPhoneString(getTelefono(f)) || '—'
+          const openState = horarioRaw ? isOpenNow(horarioRaw) : null
+
+          return (
+            <div key={idx} className="col-md-6">
+              <div className="card h-100">
+                <div className="card-body text-center">
+                  {/* icon / logo placeholder */}
+                  <div style={{width:40, height:40, margin:'0 auto 8px', borderRadius:8, background:'#5b2e9a', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff'}}>
+                    <span style={{fontSize:18}}>🏥</span>
+                  </div>
+                  <h5 className="card-title" style={{color:'#3b0b87', fontWeight:700}}>{nombre}</h5>
+                  <div className="mb-1" style={{color:'#6f6f6f', textTransform:'uppercase'}}>{comuna}</div>
+                  <div className="mb-1">
+                    <div style={{textDecoration:'underline', textDecorationStyle:'dotted', color:'#3b0b87', fontWeight:600}}>{direccion}</div>
+                  </div>
+                  <div className="mb-1" style={{color:'#333'}}><strong>Horario hoy:</strong> {horarioDisplay || '—'}</div>
+                  <div className="mb-3" style={{color:'#333'}}><strong>Teléfono:</strong> {telefono}</div>
+                  <div>
+                    <div className={"btn " + (openState ? 'btn-success' : openState === false ? 'btn-danger' : 'btn-secondary')} style={{width:'100%', borderRadius:20}}>
+                      {openState === null ? 'Horario no disponible' : openState ? 'Farmacia abierta' : 'Cerrado'}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
 
         {(!loading && filtered.length === 0) && (
           <div className="col-12">
@@ -193,4 +214,81 @@ function parseTime(t: string | null | undefined) {
   const hh = Number(m[1])
   const mm = Number(m[2])
   return hh * 60 + mm
+}
+
+// --- Utilities for display and sanitization ---
+function cleanText(v: any) {
+  if (v == null) return ''
+  let s = String(v)
+  // replace non-breaking spaces and control chars
+  s = s.replace(/\u00A0/g, ' ')
+  s = s.replace(/[\u2000-\u200B\uFEFF]/g, '')
+  // collapse multiple whitespace
+  s = s.replace(/\s+/g, ' ').trim()
+  return s
+}
+
+function formatDisplayName(v: any) {
+  const s = cleanText(v)
+  return s ? s.toUpperCase() : ''
+}
+
+function formatDisplayAddress(v: any) {
+  const s = cleanText(v)
+  return s ? s.toUpperCase() : ''
+}
+
+function formatPhoneString(v: any) {
+  if (!v) return null
+  let s = String(v)
+  // try to extract digits
+  const digits = s.replace(/\D+/g, '')
+  if (!digits) return null
+  if (digits.startsWith('56') && digits.length >= 10) return '+' + digits
+  if (digits.length === 9) return '+56' + digits
+  if (digits.length >= 8) return '+56' + digits
+  // fallback: return cleaned original
+  return s.trim()
+}
+
+function isOpenNow(horario: string) {
+  if (!horario) return null
+  const times = extractTimes(horario)
+  if (!times || times.length === 0) return null
+  const now = new Date()
+  const nowMinutes = now.getHours() * 60 + now.getMinutes()
+
+  for (let i = 0; i < times.length; i += 2) {
+    const t0 = parseTime(times[i])
+    const t1 = times[i + 1] ? parseTime(times[i + 1]) : null
+    if (t0 == null) continue
+    if (t1 == null) {
+      // only opening time provided - assume open from t0 onwards
+      if (nowMinutes >= t0) return true
+      continue
+    }
+    // handle overnight ranges where t1 < t0
+    if (t1 >= t0) {
+      if (nowMinutes >= t0 && nowMinutes <= t1) return true
+    } else {
+      // overnight: open if now >= t0 OR now <= t1
+      if (nowMinutes >= t0 || nowMinutes <= t1) return true
+    }
+  }
+
+  return false
+}
+
+function formatHorarioForDisplay(horario: string | null) {
+  if (!horario) return null
+  const times = extractTimes(horario)
+  if (!times || times.length === 0) return cleanText(horario)
+  const pairs: string[] = []
+  for (let i = 0; i < times.length; i += 2) {
+    const a = times[i]
+    const b = times[i + 1]
+    if (b) pairs.push(`${a} - ${b}`)
+    else pairs.push(a)
+  }
+  return pairs.join(' / ')
 }
