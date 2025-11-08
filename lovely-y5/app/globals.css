@@ -225,8 +225,9 @@ h1, h2, h3, h4, h5, h6 {
 .floating-cart-wrapper {
   position: fixed;
   right: 20px;
-  top: 80px;
-  z-index: 1050;
+  /* Mantener fijo debajo del navbar usando una variable, por defecto 56px */
+  top: calc(var(--navbar-height, 56px) + 12px);
+  z-index: 1060; /* encima de la mayoría de elementos */
 }
 
 .floating-cart-button img { display: block; }
@@ -234,8 +235,10 @@ h1, h2, h3, h4, h5, h6 {
 /* En pantallas pequeñas movemos el carrito a la esquina inferior derecha
    y el botón de turno se coloca debajo del navbar para no solaparse */
 @media (max-width: 768px) {
-  .floating-cart-wrapper { right: 12px; top: auto; bottom: 16px; }
-  .turno-button-wrapper { top: calc(56px + 8px); right: 12px; }
+  /* En móviles mantener el carrito visible debajo del navbar y
+     reducir márgenes para no tapar contenido */
+  .floating-cart-wrapper { right: 12px; top: calc(var(--navbar-height, 56px) + 8px); }
+  .turno-button-wrapper { top: calc(var(--navbar-height, 56px) + 8px); right: 12px; }
   .turno-button { padding: 0.45rem 0.7rem; font-size: 0.9rem; }
 }
 
