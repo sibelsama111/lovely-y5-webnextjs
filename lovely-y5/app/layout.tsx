@@ -5,6 +5,7 @@ import { CartProvider } from '../context/CartContext'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import FloatingCart from '../components/FloatingCart'
+import FarmaciasTurnoButton from '../components/FarmaciasTurnoButton'
 import Breadcrumb from '../components/Breadcrumb'
 import { Toaster } from 'react-hot-toast'
 import Link from 'next/link'
@@ -21,7 +22,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <CartProvider>
             <Navbar />
-            {/* El botón/fecha de 'Farmacias de turno' se renderiza solo en la página específica */}
+            {/* Botón de 'Farmacias de turno' (visible en todas las páginas excepto en la propia página de farmacias) */}
+            <FarmaciasTurnoButton />
             <main className="container my-4" style={{ minHeight: '65vh' }}>
               <Breadcrumb />
               {children}
