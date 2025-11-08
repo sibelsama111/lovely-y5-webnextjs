@@ -1,7 +1,6 @@
 'use client'
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 
 type Farmacia = Record<string, any>
 
@@ -131,13 +130,10 @@ export default function FarmaciasTurnoPage() {
 
   return (
     <div className="container py-4">
-      {/* Fixed small header: fecha/hora + breadcrumb (top-left under navbar) */}
+      {/* Fixed small header: fecha/hora (top-left under navbar) - breadcrumb removed because UI already has a back button */}
       <div style={{position:'fixed', top:70, left:12, zIndex:1050}}>
         <div style={{background:'#fff', padding:'8px 12px', borderRadius:8, boxShadow:'0 2px 8px rgba(0,0,0,0.08)'}}>
           <div style={{fontSize:12, color:'#333', fontWeight:600}}>{formatNow()}</div>
-          <div style={{fontSize:12, marginTop:4}}>
-            <BreadcrumbCompact />
-          </div>
         </div>
       </div>
 
@@ -183,9 +179,9 @@ export default function FarmaciasTurnoPage() {
           const nombre = formatDisplayName(getName(f))
           const comuna = cleanText(getComuna(f)) || '—'
           const direccion = formatDisplayAddress(getDireccion(f)) || '—'
-          const horarioRaw = getHorarioString(f)
-          const horarioDisplay = formatHorarioForDisplay(horarioRaw)
-          const telefono = formatPhoneString(getTelefono(f)) || '—'
+          const horarioRaw = getHorarioFromFields(f) || getHorarioString(f)
+          const horarioDisplay = horarioRaw ? (getHorarioFromFields(f) ? horarioRaw : formatHorarioForDisplay(horarioRaw)) : '—'
+          const telefono = getLocalTelefono(f) || (formatPhoneString(getTelefono(f)) || '—')
           const openState = horarioRaw ? isOpenNow(horarioRaw) : null
 
           return (
@@ -221,7 +217,7 @@ export default function FarmaciasTurnoPage() {
 
 // Helpers: heurísticos para leer campos comunes de la API
 function getName(item: Farmacia) {
-  return (item.nombre || item.NOMBRE || item.nombre_local || item.nombre_fantasia || item.RAZON_SOCIAL || item.local || item.Nombre || item.nombreLocal)
+  return (item.local_nombre || item.localNombre || item.nombre || item.NOMBRE || item.nombre_local || item.nombre_fantasia || item.RAZON_SOCIAL || item.local || item.Nombre || item.nombreLocal)
 }
 
 function getComuna(item: Farmacia) {
@@ -251,6 +247,29 @@ function getHorarioString(item: Farmacia) {
     const v = item[k]
     if (typeof v === 'string' && v.includes(':')) return v
   }
+  return null
+}
+
+function getHorarioFromFields(item: Farmacia) {
+  if (!item) return null
+  const a = item.funcionamiento_hora_apertura || item.hora_apertura || item.apertura || item.funcionamiento_inicio || item.hora_inicio
+  const b = item.funcionamiento_hora_cierre || item.hora_cierre || item.cierre || item.funcionamiento_fin || item.hora_fin
+  if (a && b) {
+    // normalize to HH:MM if possible
+    const pa = String(a).trim()
+    const pb = String(b).trim()
+    return `${pa} - ${pb}`
+  }
+  if (a) return String(a).trim()
+  return null
+}
+
+function getLocalTelefono(item: Farmacia) {
+  if (!item) return null
+  // return local_telefono exactly if present
+  if (item.local_telefono) return String(item.local_telefono)
+  if (item.localTelefono) return String(item.localTelefono)
+  if (item.telefono_local) return String(item.telefono_local)
   return null
 }
 
@@ -438,30 +457,4 @@ function formatNow() {
   return `${days[now.getDay()]} ${dd}/${mm}/${yyyy} ${hh}:${min}`
 }
 
-// Compact breadcrumb for top-left
-function BreadcrumbCompact() {
-  const pathname = usePathname() || '/'
-  const parts = pathname.split('/').filter(Boolean)
-  const crumbs = [{label:'HOME', href:'/'}]
-  let cur = ''
-  parts.forEach(p => {
-    cur += `/${p}`
-    let label = p.replace(/-/g,' ').toUpperCase()
-    if (p === 'producto') label = 'PRODUCTOS'
-    crumbs.push({label, href: cur})
-  })
-  return (
-    <div style={{display:'flex', gap:6, alignItems:'center'}}>
-      {crumbs.map((c, i) => (
-        <span key={c.href} style={{fontSize:12}}>
-          {i>0 && <span style={{color:'#666'}}>→ </span>}
-          {i === crumbs.length-1 ? (
-            <span style={{fontWeight:600}}>{c.label}</span>
-          ) : (
-            <Link href={c.href} className="text-decoration-none" style={{color:'#3b0b87'}}>{c.label}</Link>
-          )}
-        </span>
-      ))}
-    </div>
-  )
-}
+// Breadcrumb compact removed: layout already provides navigation/back button
