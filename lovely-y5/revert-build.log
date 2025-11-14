@@ -1,0 +1,78 @@
+
+> lovely-y5@0.1.0 build
+> next build
+
+   Creating an optimized production build ...
+(node:12440) [DEP_WEBPACK_MODULE_UPDATE_HASH] DeprecationWarning: Module.updateHash: Use new ChunkGraph API
+    at ChunkGraph.getChunkGraphForModule (/workspaces/lovely-y5-webnextjs/lovely-y5/node_modules/next/dist/compiled/webpack/bundle5.js:28:48741)
+    at CssModule.updateHash (/workspaces/lovely-y5-webnextjs/lovely-y5/node_modules/next/dist/compiled/webpack/bundle5.js:28:343372)
+    at CssModule.updateHash (/workspaces/lovely-y5-webnextjs/lovely-y5/node_modules/next/dist/compiled/mini-css-extract-plugin/index.js:1:7125)
+    at Object.name [as getName] (/workspaces/lovely-y5-webnextjs/lovely-y5/node_modules/next/dist/build/webpack-config.js:941:45)
+    at addModuleToChunksInfoMap (/workspaces/lovely-y5-webnextjs/lovely-y5/node_modules/next/dist/compiled/webpack/bundle5.js:28:1124815)
+    at /workspaces/lovely-y5-webnextjs/lovely-y5/node_modules/next/dist/compiled/webpack/bundle5.js:28:1127194
+    at Hook.eval [as call] (eval at create (/workspaces/lovely-y5-webnextjs/lovely-y5/node_modules/next/dist/compiled/webpack/bundle5.js:13:28645), <anonymous>:31:16)
+    at Hook.CALL_DELEGATE [as _call] (/workspaces/lovely-y5-webnextjs/lovely-y5/node_modules/next/dist/compiled/webpack/bundle5.js:13:25915)
+    at Compilation.seal (/workspaces/lovely-y5-webnextjs/lovely-y5/node_modules/next/dist/compiled/webpack/bundle5.js:28:103411)
+    at /workspaces/lovely-y5-webnextjs/lovely-y5/node_modules/next/dist/compiled/webpack/bundle5.js:28:148889
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+
+   We detected TypeScript in your project and reconfigured your tsconfig.json file for you. Strict-mode is set to false by default.
+   The following mandatory changes were made to your tsconfig.json:
+
+   	- jsx was set to preserve (next.js implements its own optimized jsx transform)
+
+   Collecting page data ...
+   Generating static pages (0/24) ...
+   Generating static pages (6/24) 
+   Generating static pages (12/24) 
+   Generating static pages (18/24) 
+ ✓ Generating static pages (24/24) 
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                Size     First Load JS
+┌ ○ /                                      3.32 kB        91.3 kB
+├ ○ /_not-found                            875 B          81.5 kB
+├ ○ /admin                                 555 B          88.5 kB
+├ ○ /admin/contacto                        1.01 kB        81.6 kB
+├ ○ /admin/dashboard                       907 B          88.9 kB
+├ ○ /admin/login                           1.58 kB        82.2 kB
+├ ○ /admin/pedidos                         1.28 kB        81.9 kB
+├ ○ /admin/perfil                          1.09 kB        81.7 kB
+├ ○ /admin/productos                       2.12 kB        82.7 kB
+├ ○ /admin/registro                        833 B          81.4 kB
+├ ○ /carrito                               9.67 kB        90.2 kB
+├ ○ /confirmacion                          138 B          80.7 kB
+├ ○ /contacto                              1.21 kB        81.8 kB
+├ ○ /farmacias-de-turno                    4.42 kB          85 kB
+├ ○ /intranet                              939 B          88.9 kB
+├ ○ /intranet/login                        6.6 kB         87.2 kB
+├ ○ /intranet/registro                     6.82 kB        87.4 kB
+├ ○ /login                                 1.61 kB        82.2 kB
+├ ○ /perfil                                1.7 kB         82.3 kB
+├ λ /producto/[id]                         3.43 kB        91.4 kB
+├ ○ /productos                             3.01 kB          91 kB
+└ ○ /registro                              1.63 kB        82.2 kB
++ First Load JS shared by all              80.6 kB
+  ├ chunks/472-669ef73977044f18.js         27.5 kB
+  ├ chunks/fd9d1056-8b08b93bd4ae31e6.js    51.1 kB
+  ├ chunks/main-app-a461d13a130e37ca.js    231 B
+  └ chunks/webpack-1c614828951df047.js     1.78 kB
+
+Route (pages)                              Size     First Load JS
+┌ λ /api/auth                              0 B            80.1 kB
+├ λ /api/contact                           0 B            80.1 kB
+├ λ /api/email/verify                      0 B            80.1 kB
+├ λ /api/orders                            0 B            80.1 kB
+├ λ /api/products                          0 B            80.1 kB
+└ λ /api/send-mail                         0 B            80.1 kB
++ First Load JS shared by all              80.1 kB
+  ├ chunks/framework-8883d1e9be70c3da.js   45.2 kB
+  ├ chunks/main-4b5a2e797754e50f.js        32.9 kB
+  ├ chunks/pages/_app-1534f180665c857f.js  205 B
+  └ chunks/webpack-1c614828951df047.js     1.78 kB
+
+λ  (Server)  server-side renders at runtime (uses getInitialProps or getServerSideProps)
+○  (Static)  automatically rendered as static HTML (uses no initial props)
+
