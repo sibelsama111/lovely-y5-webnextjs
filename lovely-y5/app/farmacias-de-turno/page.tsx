@@ -12,7 +12,7 @@ export default function FarmaciasTurnoPage() {
   const [comunaFilter, setComunaFilter] = useState('')
   const [timeFrom, setTimeFrom] = useState('')
   const [timeTo, setTimeTo] = useState('')
-  const [regionFilter, setRegionFilter] = useState('')
+  
   const [userLocation, setUserLocation] = useState<{lat:number, lon:number} | null>(null)
   const [sortByDistance, setSortByDistance] = useState(false)
 
@@ -69,14 +69,7 @@ export default function FarmaciasTurnoPage() {
     return Array.from(s).sort((a,b)=>a.localeCompare(b))
   }, [items])
 
-  const regions = useMemo(() => {
-    const s = new Set<string>()
-    items.forEach(it => {
-      const r = getRegionCode(it)
-      if (r) s.add(String(r))
-    })
-    return Array.from(s).sort((a,b)=>Number(a)-Number(b))
-  }, [items])
+  
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -92,12 +85,7 @@ export default function FarmaciasTurnoPage() {
             .join(' ')
           if (!textFields.includes(q) && !JSON.stringify(it).toLowerCase().includes(q)) return false
         }
-        // region
-        if (regionFilter) {
-          const rc = String(getRegionCode(it) || '').toLowerCase()
-          const rn = (getRegionName(rc) || '').toLowerCase()
-          if (rc !== regionFilter.toLowerCase() && rn !== regionFilter.toLowerCase()) return false
-        }
+  // region filtering removed intentionally
         // comuna
         if (comunaFilter) {
           const c = (getComuna(it) || '').toLowerCase()
@@ -126,7 +114,7 @@ export default function FarmaciasTurnoPage() {
         const nb = (getName(b) || '').toLowerCase()
         return na.localeCompare(nb)
       })
-  }, [items, query, comunaFilter, timeFrom, timeTo, regionFilter, sortByDistance, userLocation])
+  }, [items, query, comunaFilter, timeFrom, timeTo, sortByDistance, userLocation])
 
   return (
     <div className="container py-4">
@@ -145,12 +133,7 @@ export default function FarmaciasTurnoPage() {
             <div className="col-md-3">
               <input className="form-control" placeholder="Buscar por nombre, dirección, teléfono, localidad..." value={query} onChange={(e)=>setQuery(e.target.value)} />
             </div>
-            <div className="col-md-2">
-              <select className="form-select" value={regionFilter} onChange={(e)=>setRegionFilter(e.target.value)}>
-                <option value="">Todas las regiones</option>
-                {regions.map(r => <option key={r} value={r}>{getRegionName(r) || r}</option>)}
-              </select>
-            </div>
+            {/* region select removed */}
             <div className="col-md-2">
               <select className="form-select" value={comunaFilter} onChange={(e)=>setComunaFilter(e.target.value)}>
                 <option value="">Todas las comunas</option>
@@ -165,7 +148,7 @@ export default function FarmaciasTurnoPage() {
             </div>
             <div className="col-md-2 d-flex justify-content-end gap-2">
               <button className="btn btn-outline-primary btn-sm" onClick={()=>locateAndSort()}>Cerca de mi</button>
-              <button className="btn btn-outline-secondary btn-sm" onClick={()=>{ setQuery(''); setComunaFilter(''); setTimeFrom(''); setTimeTo(''); setRegionFilter(''); setSortByDistance(false); setUserLocation(null) }}>Limpiar</button>
+              <button className="btn btn-outline-secondary btn-sm" onClick={()=>{ setQuery(''); setComunaFilter(''); setTimeFrom(''); setTimeTo(''); setSortByDistance(false); setUserLocation(null) }}>Limpiar</button>
             </div>
           </div>
         </div>
@@ -198,7 +181,7 @@ export default function FarmaciasTurnoPage() {
                   <div className="mb-1" style={{color:'#333'}}><strong>Dirección:</strong> {direccion}</div>
                   <div className="mb-1" style={{color:'#6f6f6f'}}><strong>Localidad:</strong> {cleanText(getLocalidad(f)) || '—'}</div>
                   <div className="mb-1" style={{color:'#6f6f6f'}}><strong>Comuna:</strong> {comuna}</div>
-                  <div className="mb-1" style={{color:'#6f6f6f'}}><strong>Región:</strong> {getRegionName(getRegionCode(f) || '') || '—'}</div>
+                  <div className="mb-1" style={{color:'#6f6f6f'}}><strong>Región:</strong> {getRegionDisplay(f) || getRegionName(getRegionCode(f) || '') || '—'}</div>
                   <div className="mb-0" style={{color:'#333'}}><strong>Teléfono:</strong> {telefono}</div>
                 </div>
               </div>
@@ -415,6 +398,28 @@ function getRegionName(code: string | number | null) {
     'V': 'V Región de Valparaíso'
   }
   return map[c] || map[String(Number(c))] || ''
+}
+
+// Prefer the region display name as provided by the API when available.
+// Tries several common keys that might contain the full region text.
+function getRegionDisplay(item: Farmacia) {
+  if (!item) return ''
+  const candidates = [
+    'region_nombre', 'region_nombre_completo', 'region_nombre_completo', 'regionName', 'region_nombre_local',
+    'region_descripcion', 'region_desc', 'region_text', 'region', 'REGION', 'region_nombre_real'
+  ]
+  for (const k of candidates) {
+    if (k in item && item[k] != null) {
+      const v = String(item[k]).trim()
+      if (v) return v
+    }
+  }
+  // Sometimes API returns an object like { region: { nombre: '...' } }
+  if (item.region && typeof item.region === 'object') {
+    const r = (item.region.nombre || item.region.name || item.region.descripcion)
+    if (r) return String(r).trim()
+  }
+  return ''
 }
 
 function getCoords(item: Farmacia): {lat:number, lon:number} | null {
