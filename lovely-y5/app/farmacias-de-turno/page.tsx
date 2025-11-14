@@ -80,7 +80,8 @@ export default function FarmaciasTurnoPage() {
       .filter(it => {
         // texto (buscar en campos comunes y en nombre de región)
         if (q) {
-          const textFields = [getName(it), getDireccion(it), getTelefono(it), getComuna(it), getLocalidad(it), getRegionCode(it) ? getRegionName(String(getRegionCode(it))) : '']
+          // searchable fields (region removed intentionally)
+          const textFields = [getName(it), getDireccion(it), getTelefono(it), getComuna(it), getLocalidad(it)]
             .map(v => String(v || '').toLowerCase())
             .join(' ')
           if (!textFields.includes(q) && !JSON.stringify(it).toLowerCase().includes(q)) return false
@@ -181,7 +182,7 @@ export default function FarmaciasTurnoPage() {
                   <div className="mb-1" style={{color:'#333'}}><strong>Dirección:</strong> {direccion}</div>
                   <div className="mb-1" style={{color:'#6f6f6f'}}><strong>Localidad:</strong> {cleanText(getLocalidad(f)) || '—'}</div>
                   <div className="mb-1" style={{color:'#6f6f6f'}}><strong>Comuna:</strong> {comuna}</div>
-                  <div className="mb-1" style={{color:'#6f6f6f'}}><strong>Región:</strong> {getRegionDisplay(f) || getRegionName(getRegionCode(f) || '') || '—'}</div>
+                  <div className="mb-1" style={{color:'#6f6f6f'}}><strong>Región:</strong> {getRegionCode(f) || '—'}</div>
                   <div className="mb-0" style={{color:'#333'}}><strong>Teléfono:</strong> {telefono}</div>
                 </div>
               </div>
