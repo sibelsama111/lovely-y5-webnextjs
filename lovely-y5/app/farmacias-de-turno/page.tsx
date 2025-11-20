@@ -24,8 +24,23 @@ export default function FarmaciasTurnoPage() {
     navigator.geolocation.getCurrentPosition((pos) => {
       const lat = pos.coords.latitude
       const lon = pos.coords.longitude
+      console.log('Ubicación del usuario:', {lat, lon})
       setUserLocation({lat, lon})
       setSortByDistance(true)
+      
+      // Debug: mostrar cuántas farmacias tienen coordenadas
+      const farmaciasConCoords = items.filter(it => {
+        const coords = getCoords(it)
+        return coords !== null
+      })
+      console.log(`Farmacias con coordenadas: ${farmaciasConCoords.length} de ${items.length}`)
+      
+      // Debug: mostrar primeras 3 farmacias con coordenadas
+      farmaciasConCoords.slice(0, 3).forEach((farmacia, idx) => {
+        const coords = getCoords(farmacia)
+        const distance = coords ? distanceBetween({lat, lon}, coords) : null
+        console.log(`Farmacia ${idx + 1}:`, getName(farmacia), 'Coords:', coords, 'Distancia:', distance?.toFixed(2) + 'km')
+      })
     }, (err) => {
       console.error('Error al obtener ubicación', err)
       alert('No se pudo obtener la ubicación')
@@ -432,28 +447,65 @@ function getRegionDisplay(item: Farmacia) {
 }
 
 function getCoords(item: Farmacia): {lat:number, lon:number} | null {
-  const latKeys = ['lat', 'latitude', 'latitud', 'y', 'posy']
-  const lonKeys = ['lon', 'lng', 'longitude', 'longitud', 'x', 'posx']
-  let lat:number|undefined, lon:number|undefined
+  if (!item) return null
+  
+  // Buscar en más campos posibles para coordenadas
+  const latKeys = [
+    'lat', 'latitude', 'latitud', 'y', 'posy', 'coordenada_y', 'coord_y', 
+    'local_lat', 'local_latitude', 'farmacia_lat', 'ubicacion_lat'
+  ]
+  const lonKeys = [
+    'lon', 'lng', 'longitude', 'longitud', 'x', 'posx', 'coordenada_x', 'coord_x',
+    'local_lon', 'local_lng', 'local_longitude', 'farmacia_lon', 'ubicacion_lon'
+  ]
+  
+  let lat: number | undefined, lon: number | undefined
+  
+  // Buscar coordenadas en campos específicos
   for (const k of latKeys) {
-    if (k in item && item[k] != null) { lat = Number(String(item[k]).replace(',', '.')); break }
-  }
-  for (const k of lonKeys) {
-    if (k in item && item[k] != null) { lon = Number(String(item[k]).replace(',', '.')); break }
-  }
-  if (typeof lat === 'number' && !Number.isNaN(lat) && typeof lon === 'number' && !Number.isNaN(lon)) return {lat, lon}
-  // sometimes coordinates come as 'lat,lon' in a single field
-  for (const k of Object.keys(item)) {
-    const v = item[k]
-    if (typeof v === 'string' && v.includes(',')) {
-      const parts = v.split(',').map(p=>p.trim())
-      if (parts.length === 2) {
-        const a = Number(parts[0].replace(',', '.'))
-        const b = Number(parts[1].replace(',', '.'))
-        if (!Number.isNaN(a) && !Number.isNaN(b)) return {lat:a, lon:b}
+    if (k in item && item[k] != null && item[k] !== '') {
+      const val = Number(String(item[k]).replace(',', '.'))
+      if (!Number.isNaN(val) && val !== 0) {
+        lat = val
+        break
       }
     }
   }
+  
+  for (const k of lonKeys) {
+    if (k in item && item[k] != null && item[k] !== '') {
+      const val = Number(String(item[k]).replace(',', '.'))
+      if (!Number.isNaN(val) && val !== 0) {
+        lon = val
+        break
+      }
+    }
+  }
+  
+  // Validar que las coordenadas estén en rangos válidos para Chile
+  if (typeof lat === 'number' && typeof lon === 'number' && 
+      !Number.isNaN(lat) && !Number.isNaN(lon) &&
+      lat >= -56 && lat <= -17 && // Rango de latitudes de Chile
+      lon >= -109 && lon <= -66) { // Rango de longitudes de Chile
+    return {lat, lon}
+  }
+  
+  // Buscar coordenadas en formato 'lat,lon' en cualquier campo string
+  for (const k of Object.keys(item)) {
+    const v = item[k]
+    if (typeof v === 'string' && v.includes(',')) {
+      const parts = v.split(',').map(p => p.trim())
+      if (parts.length === 2) {
+        const a = Number(parts[0].replace(',', '.'))
+        const b = Number(parts[1].replace(',', '.'))
+        if (!Number.isNaN(a) && !Number.isNaN(b) &&
+            a >= -56 && a <= -17 && b >= -109 && b <= -66) {
+          return {lat: a, lon: b}
+        }
+      }
+    }
+  }
+  
   return null
 }
 
