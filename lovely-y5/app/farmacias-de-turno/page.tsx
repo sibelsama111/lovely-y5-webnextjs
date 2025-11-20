@@ -119,13 +119,6 @@ export default function FarmaciasTurnoPage() {
 
   return (
     <div className="container py-4">
-      {/* Fixed small header: fecha/hora (top-left under navbar) - breadcrumb removed because UI already has a back button */}
-      <div style={{position:'fixed', top:70, left:12, zIndex:1050}}>
-        <div style={{background:'#fff', padding:'8px 12px', borderRadius:8, boxShadow:'0 2px 8px rgba(0,0,0,0.08)'}}>
-          <div style={{fontSize:12, color:'#333', fontWeight:600}}>{formatNow()}</div>
-        </div>
-      </div>
-
       <h2 className="mb-4">Farmacias de turno</h2>
 
       <div className="card mb-4">
@@ -152,6 +145,13 @@ export default function FarmaciasTurnoPage() {
               <button className="btn btn-outline-secondary btn-sm" onClick={()=>{ setQuery(''); setComunaFilter(''); setTimeFrom(''); setTimeTo(''); setSortByDistance(false); setUserLocation(null) }}>Limpiar</button>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Reloj centrado debajo de los filtros */}
+      <div className="text-center mb-4">
+        <div className="d-inline-block bg-white px-3 py-2 rounded shadow-sm border">
+          <div style={{fontSize:14, color:'#333', fontWeight:600}}>{formatNow()}</div>
         </div>
       </div>
 
