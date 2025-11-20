@@ -78,6 +78,14 @@ export default function FarmaciasTurnoPage() {
 
     return items
       .filter(it => {
+        // filtrar por distancia si está activado "cerca de mi"
+        if (sortByDistance && userLocation) {
+          const coords = getCoords(it)
+          if (!coords) return false // excluir farmacias sin coordenadas
+          const distance = distanceBetween(userLocation, coords)
+          if (distance > 5) return false // solo mostrar farmacias dentro de 5km
+        }
+
         // texto (buscar en campos comunes y en nombre de región)
         if (q) {
           // searchable fields (region removed intentionally)
