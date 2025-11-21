@@ -147,6 +147,39 @@ service cloud.firestore {
       allow read, write: if isAuthenticated() && request.auth.uid == userId;
     }
 
+    // Reviews/Valoraciones: lectura pública, escritura para usuarios autenticados
+    match /reviews/{reviewId} {
+      // Permitir lectura a todos
+      allow read: if true;
+      
+      // Permitir creación solo a usuarios autenticados con RUT válido
+      allow create: if isAuthenticated() 
+        && request.resource.data.userId == request.auth.uid
+        && validateReviewData(request.resource.data);
+      
+      // Permitir actualización solo al propietario de la review
+      allow update: if isAuthenticated() 
+        && resource.data.userId == request.auth.uid
+        && validateReviewData(request.resource.data);
+      
+      // Permitir eliminación solo al propietario o administrador
+      allow delete: if isAuthenticated() 
+        && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // Función para validar estructura de reviews
+    function validateReviewData(data) {
+      return data.keys().hasAll(['productCode', 'userId', 'userName', 'rating', 'comment'])
+        && data.rating is number
+        && data.rating >= 1 
+        && data.rating <= 5
+        && data.comment is string
+        && data.comment.size() > 0
+        && data.productCode is string
+        && data.userId is string
+        && data.userName is string;
+    }
+
     // Fallback: restringir todo lo demás por seguridad
     match /{document=**} {
       allow read, write: if false;

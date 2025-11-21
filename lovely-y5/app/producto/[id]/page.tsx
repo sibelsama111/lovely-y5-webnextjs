@@ -46,7 +46,7 @@ export default function ProductoDetalle({ params }: { params: { id: string } }) 
     try {
       setLoadingReviews(true)
       const productReviews = await reviewService.getByProductCode(productCode)
-      setReviews(productReviews)
+      setReviews(productReviews as Review[])
     } catch (error) {
       console.error('Error cargando reseñas desde Firebase:', error)
       // Fallback a localStorage como respaldo
@@ -280,19 +280,25 @@ export default function ProductoDetalle({ params }: { params: { id: string } }) 
               )}
 
               <div className="mt-4">
-                {reviews.length === 0 ? (
+                {loadingReviews ? (
+                  <div className="text-center">
+                    <div className="spinner-border" role="status">
+                      <span className="visually-hidden">Cargando valoraciones...</span>
+                    </div>
+                  </div>
+                ) : reviews.length === 0 ? (
                   <p className="text-muted">Sé el primero en valorar este producto</p>
                 ) : (
                   reviews.map((review, index) => (
-                    <div key={index} className="card mb-3">
+                    <div key={review.id || index} className="card mb-3">
                       <div className="card-body">
                         <div className="d-flex justify-content-between">
-                          <h6 className="card-subtitle mb-2">{review.user}</h6>
+                          <h6 className="card-subtitle mb-2">{review.userName || (review as any).user}</h6>
                           <span className="text-warning">{review.rating} ⭐</span>
                         </div>
                         <p className="card-text">{review.comment}</p>
                         <small className="text-muted">
-                          {new Date(review.at).toLocaleDateString('es-CL', { 
+                          {new Date(review.createdAt?.toDate?.() || review.createdAt || (review as any).at).toLocaleDateString('es-CL', { 
                             year: 'numeric', 
                             month: 'long', 
                             day: 'numeric' 

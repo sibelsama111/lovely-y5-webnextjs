@@ -1,4 +1,3 @@
-// context/CartContext.tsx
 'use client'
 import { createContext, useContext, useState, useEffect } from 'react';
 import { AuthContext } from './AuthContext';

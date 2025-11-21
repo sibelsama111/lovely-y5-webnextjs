@@ -1,29 +1,36 @@
-// app/login/page.tsx
 'use client'
 import { useState, useContext } from 'react'
 import { AuthContext } from '../../context/AuthContext'
+import { userService } from '../../lib/firebaseServices'
 import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
   const { setUser } = useContext(AuthContext)
   const router = useRouter()
 
-  const submit = (e: any) => {
+  const submit = async (e: any) => {
     e.preventDefault()
+    setLoading(true)
+    
     try {
-      const u = JSON.parse(localStorage.getItem('lovely_user') || 'null')
-      if (!u) { alert('No hay usuarios registrados. Regístrate.'); return }
-      if ((u.correo === identifier || u.telefono === identifier) && u.password === password) {
-        setUser(u)
-        alert('Login OK')
+      const cleanIdentifier = identifier.replace(/[^0-9kK@.]/g, '').toUpperCase()
+      const user = await userService.authenticate(cleanIdentifier, password)
+      
+      if (user && (user as any).primerNombre) {
+        setUser(user as any)
+        alert('Login exitoso')
         router.push('/')
       } else {
         alert('Credenciales incorrectas')
       }
-    } catch (e) {
-      alert('Error demo')
+    } catch (error) {
+      console.error('Error en login:', error)
+      alert('Error al iniciar sesión. Inténtalo nuevamente.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -37,14 +44,15 @@ export default function LoginPage() {
         
         <form onSubmit={submit}>
           <div className="mb-3">
-            <label className="form-label">Correo o Teléfono</label>
+            <label className="form-label">RUT, Correo o Teléfono</label>
             <input 
               className="form-control" 
-              placeholder="Ingresa tu correo o teléfono"
+              placeholder="Ingresa tu RUT, correo o teléfono"
               value={identifier} 
               onChange={e => setIdentifier(e.target.value)}
               required
             />
+            <small className="text-muted">RUT sin formato: 12345678K</small>
           </div>
 
           <div className="mb-4">
@@ -60,8 +68,8 @@ export default function LoginPage() {
           </div>
 
           <div className="d-grid gap-2">
-            <button type="submit" className="btn btn-primary">
-              Iniciar sesión
+            <button type="submit" className="btn btn-primary" disabled={loading}>
+              {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
             </button>
             <button 
               type="button" 

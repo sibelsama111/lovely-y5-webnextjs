@@ -1,4 +1,3 @@
-// pages/api/products.js
 import { productService } from '../../lib/firebaseServices'
 import { listProducts } from '../../data/products'
 
@@ -10,7 +9,6 @@ export default async function handler(req, res) {
       let products
       try {
         products = await productService.getAll()
-        // Si no hay productos en Firebase, usar datos locales
         if (!products || products.length === 0) {
           console.log('No hay productos en Firebase, usando datos locales')
           products = listProducts()

@@ -1,8 +1,8 @@
-// lib/firebaseServices.js
 import { 
   collection, 
   doc, 
   addDoc, 
+  setDoc,
   updateDoc, 
   deleteDoc, 
   getDocs, 
@@ -215,8 +215,78 @@ export const userService = {
     }
   },
 
-  // Crear o actualizar usuario
-  async createOrUpdate(userId, userData) {
+  // Crear nuevo usuario
+  async create(userData) {
+    try {
+      // Verificar si el RUT ya existe
+      const existingUser = await this.getByRUT(userData.rut)
+      if (existingUser) {
+        throw new Error('User already exists')
+      }
+
+      const docRef = doc(db, 'users', userData.rut)
+      await setDoc(docRef, {
+        ...userData,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      return userData.rut
+    } catch (error) {
+      console.error('Error creando usuario:', error)
+      throw error
+    }
+  },
+
+  // Obtener usuario por RUT
+  async getByRUT(rut) {
+    try {
+      const docRef = doc(db, 'users', rut)
+      const docSnap = await getDoc(docRef)
+      
+      if (docSnap.exists()) {
+        return { rut: docSnap.id, ...docSnap.data() }
+      } else {
+        return null
+      }
+    } catch (error) {
+      console.error('Error obteniendo usuario por RUT:', error)
+      throw error
+    }
+  },
+
+  // Autenticar usuario
+  async authenticate(identifier, password) {
+    try {
+      let user = null
+      
+      // Intentar por RUT
+      if (/^[0-9]{7,8}[0-9K]$/.test(identifier)) {
+        user = await this.getByRUT(identifier)
+      } else {
+        // Buscar por correo o teléfono
+        const q = query(
+          collection(db, 'users'),
+          where(identifier.includes('@') ? 'correo' : 'telefono', '==', identifier)
+        )
+        const querySnapshot = await getDocs(q)
+        if (!querySnapshot.empty) {
+          const doc = querySnapshot.docs[0]
+          user = { rut: doc.id, ...doc.data() }
+        }
+      }
+      
+      if (user && user.password === password && user.activo) {
+        return user
+      }
+      return null
+    } catch (error) {
+      console.error('Error en autenticación:', error)
+      throw error
+    }
+  },
+
+  // Actualizar usuario
+  async update(userId, userData) {
     try {
       const docRef = doc(db, 'users', userId)
       await updateDoc(docRef, {
