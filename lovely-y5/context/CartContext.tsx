@@ -6,10 +6,11 @@ import { sendMailClient } from '../lib/mail';
 import { orderConfirmationClient, orderConfirmationAdmin } from '../lib/emailTemplates';
 
 export type CartItem = {
-  id: string
+  codigo: string // Código del producto (ej: LVL5_IPHONE12_128GB)
   nombre: string
-  precio: number
-  quantity: number
+  precioOriginal?: number
+  precioActual: number
+  cantidad: number
   imagenes?: string[]
 }
 
@@ -21,7 +22,7 @@ type OrderShipping = {
 
 type Order = {
   id: string
-  items: CartItem[]
+  items: Record<string, CartItem> // Map de productos por ID
   total: number
   shipping: OrderShipping
   status: string
@@ -29,23 +30,23 @@ type Order = {
 }
 
 type CartContextProps = {
-  cartItems: CartItem[]
-  addToCart: (product: Omit<CartItem, 'quantity'>) => void
-  removeFromCart: (productId: string) => void
-  updateQuantity: (productId: string, quantity: number) => void
+  cartItems: Record<string, CartItem> // Map de productos por código
+  addToCart: (product: Omit<CartItem, 'cantidad'>) => void
+  removeFromCart: (codigo: string) => void
+  updateQuantity: (codigo: string, cantidad: number) => void
   clearCart: () => void
   checkout: (orderData: OrderShipping) => Order
 }
 
 export const CartContext = createContext<CartContextProps>({
-  cartItems: [],
+  cartItems: {}, // Mapa vacío
   addToCart: () => {},
   removeFromCart: () => {},
   updateQuantity: () => {},
   clearCart: () => {},
   checkout: () => ({
     id: '',
-    items: [],
+    items: {},
     total: 0,
     shipping: {},
     status: '',
@@ -59,12 +60,12 @@ export function useCart() {
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const { user } = useContext(AuthContext);
-  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+  const [cartItems, setCartItems] = useState<Record<string, CartItem>>(() => {
     try {
-      if (typeof window === 'undefined') return [];
+      if (typeof window === 'undefined') return {};
       const storedCart = localStorage.getItem('lovely5_cart');
-      return storedCart ? JSON.parse(storedCart) : [];
-    } catch { return []; }
+      return storedCart ? JSON.parse(storedCart) : {};
+    } catch { return {}; }
   });
 
   // Guardar en localStorage cada vez que cambie
@@ -72,29 +73,45 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try { localStorage.setItem('lovely5_cart', JSON.stringify(cartItems)); } catch {}
   }, [cartItems]);
 
-  const addToCart = (product: Omit<CartItem, 'quantity'>) => {
+  const addToCart = (product: Omit<CartItem, 'cantidad'>) => {
     setCartItems(prevItems => {
-      const exists = prevItems.find(i => i.id === product.id);
-      if (exists) return prevItems.map(i => i.id===product.id ? { ...i, quantity: i.quantity + 1 } : i);
-      return [...prevItems, { ...product, quantity: 1 }];
+      const exists = prevItems[product.codigo];
+      if (exists) {
+        return {
+          ...prevItems,
+          [product.codigo]: { ...exists, cantidad: exists.cantidad + 1 }
+        };
+      }
+      return {
+        ...prevItems,
+        [product.codigo]: { ...product, cantidad: 1 }
+      };
     });
   };
 
-  const removeFromCart = (productId: string) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
+  const removeFromCart = (codigo: string) => {
+    setCartItems(prevItems => {
+      const newItems = { ...prevItems };
+      delete newItems[codigo];
+      return newItems;
+    });
   };
   
-  const updateQuantity = (productId: string, quantity: number) => {
-    setCartItems(prevItems => prevItems.map(i=> i.id===productId? { ...i, quantity } : i));
+  const updateQuantity = (codigo: string, cantidad: number) => {
+    setCartItems(prevItems => ({
+      ...prevItems,
+      [codigo]: { ...prevItems[codigo], cantidad }
+    }));
   };
 
-  const clearCart = () => setCartItems([]);
+  const clearCart = () => setCartItems({});
 
   const checkout = (orderData: OrderShipping) => {
+    const itemsArray = Object.values(cartItems);
     const order: Order = {
       id: `order_${Date.now()}`,
-      items: cartItems,
-      total: cartItems.reduce((s,i)=> s + (i.precio * i.quantity), 0),
+      items: cartItems, // Mantener como map para Firebase
+      total: itemsArray.reduce((s,i)=> s + (i.precioActual * i.cantidad), 0),
       shipping: orderData,
       status: 'confirmado',
       createdAt: new Date().toISOString()

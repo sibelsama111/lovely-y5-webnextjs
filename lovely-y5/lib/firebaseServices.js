@@ -195,3 +195,60 @@ export const contactService = {
     }
   }
 }
+
+// Servicios para usuarios
+export const userService = {
+  // Obtener usuario por ID
+  async getById(userId) {
+    try {
+      const docRef = doc(db, 'users', userId)
+      const docSnap = await getDoc(docRef)
+      
+      if (docSnap.exists()) {
+        return { id: docSnap.id, ...docSnap.data() }
+      } else {
+        return null
+      }
+    } catch (error) {
+      console.error('Error obteniendo usuario:', error)
+      throw error
+    }
+  },
+
+  // Crear o actualizar usuario
+  async createOrUpdate(userId, userData) {
+    try {
+      const docRef = doc(db, 'users', userId)
+      await updateDoc(docRef, {
+        ...userData,
+        updatedAt: new Date()
+      })
+      return true
+    } catch (error) {
+      console.error('Error actualizando usuario:', error)
+      throw error
+    }
+  }
+}
+
+// Servicios para categorías
+export const categoryService = {
+  // Obtener todas las categorías activas
+  async getAll() {
+    try {
+      const q = query(
+        collection(db, 'categories'),
+        where('activa', '==', true),
+        orderBy('orden', 'asc')
+      )
+      const querySnapshot = await getDocs(q)
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+    } catch (error) {
+      console.error('Error obteniendo categorías:', error)
+      throw error
+    }
+  }
+}

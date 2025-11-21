@@ -12,7 +12,15 @@
     "test:watch": "karma start",
     "type-check": "tsc --noEmit",
     "firebase:deploy": "npm run build && firebase deploy",
-    "firebase:serve": "firebase serve --host 0.0.0.0"
+    "firebase:serve": "firebase serve --host 0.0.0.0",
+    "firestore:test": "node scripts/test-firestore-connection.js",
+    "firestore:rules": "firebase deploy --only firestore:rules",
+    "firestore:indexes": "firebase deploy --only firestore:indexes",
+    "firestore:deploy": "firebase deploy --only firestore:rules,firestore:indexes",
+    "emulators:start": "firebase emulators:start",
+    "emulators:seed": "node scripts/seed-emulator.mjs",
+    "dev:emulators": "concurrently \"firebase emulators:start\" \"npm run dev\"",
+    "dev:full": "firebase emulators:start --import=./emulator-data --export-on-exit"
   },
   "dependencies": {
     "@tailwindcss/forms": "^0.5.7",
@@ -36,8 +44,10 @@
     "@types/uuid": "^9.0.7",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
+    "concurrently": "^9.2.1",
     "eslint": "^8.52.0",
     "eslint-config-next": "^13.5.6",
+    "firebase-admin": "^13.6.0",
     "jasmine-core": "^5.1.0",
     "karma": "^6.4.2",
     "karma-chrome-launcher": "^3.1.1",

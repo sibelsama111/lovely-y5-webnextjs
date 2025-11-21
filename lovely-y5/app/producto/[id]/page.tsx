@@ -53,9 +53,10 @@ export default function ProductoDetalle({ params }: { params: { id: string } }) 
   const add = () => {
     if (!product) return
     addToCart({
-      id: product.id,
+      codigo: (product as any).codigo || product.id, // Usar código del producto
       nombre: product.nombre,
-      precio: product.precio,
+      precioOriginal: (product as any).precioOriginal,
+      precioActual: (product as any).precioActual || product.precio,
       imagenes: product.imagenes
     })
     alert('¡Producto añadido al carrito!')
@@ -109,7 +110,26 @@ export default function ProductoDetalle({ params }: { params: { id: string } }) 
             <span className="badge bg-primary me-2">{product.marca}</span>
             <span className="badge bg-secondary">{product.tipo}</span>
           </div>
-          <h3 className="text-primary mb-4">${Number(product.precio).toLocaleString('es-CL')}</h3>
+          <div className="mb-4">
+            {(product as any).precioOriginal && (product as any).precioActual && 
+             (product as any).precioOriginal !== (product as any).precioActual ? (
+              <div className="d-flex align-items-center gap-3 mb-2">
+                <span className="text-muted text-decoration-line-through fs-4">
+                  ${(product as any).precioOriginal.toLocaleString('es-CL')}
+                </span>
+                <h3 className="text-primary fw-bold mb-0">
+                  ${(product as any).precioActual.toLocaleString('es-CL')}
+                </h3>
+                <span className="badge bg-danger fs-6">
+                  -{Math.round((((product as any).precioOriginal - (product as any).precioActual) / (product as any).precioOriginal) * 100)}%
+                </span>
+              </div>
+            ) : (
+              <h3 className="text-primary mb-0">
+                ${Number((product as any).precioActual || product.precio).toLocaleString('es-CL')}
+              </h3>
+            )}
+          </div>
           
           <div className="mb-4">
             <h5>Descripción</h5>

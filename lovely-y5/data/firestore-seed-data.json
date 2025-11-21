@@ -1,0 +1,165 @@
+{
+  "products": {
+    "prod1": {
+      "codigo": "LVL5_IPHONE12_128GB",
+      "nombre": "iPhone 12",
+      "marca": "Apple",
+      "tipo": "iPhones",
+      "precio": 399990,
+      "imagenes": ["/products/iPhone-12.png"],
+      "descripcion": "Reacondicionado - 128GB - Como nuevo",
+      "detalles": "Procesador A14 Bionic - Pantalla 6.1\" - Cámara dual 12MP",
+      "fichaTecnica": {
+        "procesador": "A14 Bionic",
+        "pantalla": "6.1\"",
+        "almacenamiento": "128GB",
+        "camara": "Dual 12MP",
+        "estado": "Reacondicionado"
+      },
+      "stock": 5,
+      "createdAt": "2025-11-21T00:00:00.000Z",
+      "updatedAt": "2025-11-21T00:00:00.000Z"
+    },
+    "prod2": {
+      "codigo": "LVL5_IPADAIR_64GB",
+      "nombre": "iPad Air",
+      "marca": "Apple",
+      "tipo": "iPads",
+      "precio": 449990,
+      "imagenes": ["/products/ipadaira1474.png"],
+      "descripcion": "Reacondicionado - 64GB - Como nuevo",
+      "detalles": "Procesador A14 - Pantalla 10.9\" - Cámara 12MP",
+      "fichaTecnica": {
+        "procesador": "A14",
+        "pantalla": "10.9\"",
+        "almacenamiento": "64GB",
+        "camara": "12MP",
+        "estado": "Reacondicionado"
+      },
+      "stock": 3,
+      "createdAt": "2025-11-21T00:00:00.000Z",
+      "updatedAt": "2025-11-21T00:00:00.000Z"
+    },
+    "prod3": {
+      "codigo": "LVL5_GALAXYS21_256GB",
+      "nombre": "Samsung Galaxy S21",
+      "marca": "Samsung",
+      "tipo": "Smartphones",
+      "precio": 299990,
+      "imagenes": ["/products/galaxy-s21.png"],
+      "descripcion": "Reacondicionado - 256GB - Excelente estado",
+      "detalles": "Procesador Exynos 2100 - Pantalla 6.2\" - Cámara triple 64MP",
+      "fichaTecnica": {
+        "procesador": "Exynos 2100",
+        "pantalla": "6.2\"",
+        "almacenamiento": "256GB",
+        "camara": "Triple 64MP",
+        "estado": "Reacondicionado"
+      },
+      "stock": 8,
+      "createdAt": "2025-11-21T00:00:00.000Z",
+      "updatedAt": "2025-11-21T00:00:00.000Z"
+    },
+    "prod4": {
+      "codigo": "LVL5_MACBOOKAIR_M1",
+      "nombre": "MacBook Air M1",
+      "marca": "Apple",
+      "tipo": "Laptops",
+      "precio": 899990,
+      "imagenes": ["/products/macbook-air-m1.png"],
+      "descripcion": "Reacondicionado - 256GB SSD - 8GB RAM",
+      "detalles": "Chip M1 - Pantalla 13.3\" - Batería hasta 18 horas",
+      "fichaTecnica": {
+        "procesador": "Apple M1",
+        "pantalla": "13.3\"",
+        "almacenamiento": "256GB SSD",
+        "ram": "8GB",
+        "estado": "Reacondicionado"
+      },
+      "stock": 2,
+      "createdAt": "2025-11-21T00:00:00.000Z",
+      "updatedAt": "2025-11-21T00:00:00.000Z"
+    }
+  },
+  "farmacias": {
+    "farm1": {
+      "nombre": "Farmacia Cruz Verde",
+      "direccion": "Av. Providencia 1234, Providencia",
+      "telefono": "+56 2 2234 5678",
+      "horario": "24 horas",
+      "fecha": "2025-11-21",
+      "ubicacion": {
+        "lat": -33.4264,
+        "lng": -70.6128
+      },
+      "createdAt": "2025-11-21T00:00:00.000Z"
+    },
+    "farm2": {
+      "nombre": "Farmacia Salcobrand",
+      "direccion": "Av. Las Condes 5678, Las Condes",
+      "telefono": "+56 2 2567 8900",
+      "horario": "24 horas",
+      "fecha": "2025-11-21",
+      "ubicacion": {
+        "lat": -33.4025,
+        "lng": -70.5731
+      },
+      "createdAt": "2025-11-21T00:00:00.000Z"
+    }
+  },
+  "categories": {
+    "cat1": {
+      "nombre": "iPhones",
+      "descripcion": "iPhones reacondicionados de Apple",
+      "imagen": "/categories/iphones.png",
+      "orden": 1
+    },
+    "cat2": {
+      "nombre": "iPads",
+      "descripcion": "iPads y tablets Apple reacondicionados",
+      "imagen": "/categories/ipads.png",
+      "orden": 2
+    },
+    "cat3": {
+      "nombre": "Smartphones",
+      "descripcion": "Smartphones Android reacondicionados",
+      "imagen": "/categories/smartphones.png",
+      "orden": 3
+    },
+    "cat4": {
+      "nombre": "Laptops",
+      "descripcion": "Laptops y MacBooks reacondicionados",
+      "imagen": "/categories/laptops.png",
+      "orden": 4
+    }
+  },
+  "settings": {
+    "store": {
+      "nombre": "Lovely Y5",
+      "descripcion": "Tienda especializada en tecnología Apple reacondicionada",
+      "direccion": "Av. Tecnológica 123, Santiago",
+      "telefono": "+56 9 8765 4321",
+      "email": "contacto@lovely-y5.cl",
+      "horario": {
+        "lunes": "9:00 - 18:00",
+        "martes": "9:00 - 18:00",
+        "miercoles": "9:00 - 18:00",
+        "jueves": "9:00 - 18:00",
+        "viernes": "9:00 - 18:00",
+        "sabado": "10:00 - 16:00",
+        "domingo": "Cerrado"
+      },
+      "redesSociales": {
+        "instagram": "@lovely_y5_cl",
+        "facebook": "Lovely Y5 Chile",
+        "whatsapp": "+56 9 8765 4321"
+      },
+      "politicas": {
+        "garantia": "6 meses en productos reacondicionados",
+        "devolucion": "30 días para devoluciones",
+        "envio": "Envío gratis en compras sobre $50.000"
+      },
+      "updatedAt": "2025-11-21T00:00:00.000Z"
+    }
+  }
+}

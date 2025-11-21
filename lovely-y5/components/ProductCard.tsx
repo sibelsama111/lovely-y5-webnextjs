@@ -9,12 +9,18 @@ export default function ProductCard({ product }: { product: any }) {
 
   const handleAddToCart = () => {
     addToCart({
-      id: product.id,
+      codigo: product.codigo || product.id, // Usar código del producto
       nombre: product.nombre,
-      precio: product.precio,
+      precioOriginal: product.precioOriginal,
+      precioActual: product.precioActual || product.precio,
       imagenes: product.imagenes
     })
   }
+
+  // Calcular descuento si hay precios originales y actuales
+  const descuento = product.precioOriginal && product.precioActual 
+    ? Math.round(((product.precioOriginal - product.precioActual) / product.precioOriginal) * 100)
+    : null
 
   return (
     <div className="card product-card h-100">
@@ -27,7 +33,27 @@ export default function ProductCard({ product }: { product: any }) {
         <p className="card-text mb-1">{product.marca} • {product.tipo}</p>
         <div className="mt-auto">
           <div className="d-flex justify-content-between align-items-center mb-2">
-            <strong className="h5 mb-0">${Number(product.precio).toLocaleString('es-CL')}</strong>
+            <div className="d-flex flex-column">
+              {product.precioOriginal && product.precioActual && product.precioOriginal !== product.precioActual ? (
+                <>
+                  <small className="text-muted text-decoration-line-through">
+                    ${product.precioOriginal.toLocaleString('es-CL')}
+                  </small>
+                  <strong className="h5 mb-0 text-primary">
+                    ${product.precioActual.toLocaleString('es-CL')}
+                  </strong>
+                  {descuento && (
+                    <span className="badge bg-danger align-self-start">
+                      -{descuento}%
+                    </span>
+                  )}
+                </>
+              ) : (
+                <strong className="h5 mb-0">
+                  ${Number(product.precioActual || product.precio).toLocaleString('es-CL')}
+                </strong>
+              )}
+            </div>
             <Link href={`/producto/${product.id}`}>
               <button className="btn btn-sm btn-outline-primary">Ver detalles</button>
             </Link>

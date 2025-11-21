@@ -118,7 +118,8 @@ export default function CarritoPage() {
     cardCvv: ''
   })
 
-  const total = cartItems.reduce((s, c) => s + c.precio * c.quantity, 0)
+  const cartItemsArray = Object.values(cartItems)
+  const total = cartItemsArray.reduce((s, c) => s + c.precioActual * c.cantidad, 0)
 
   const validateForm = () => {
     const newErrors = {
@@ -139,7 +140,7 @@ export default function CarritoPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     
-    if (!cartItems.length) {
+    if (!cartItemsArray.length) {
       toast.error('El carrito está vacío')
       return
     }
@@ -186,26 +187,26 @@ export default function CarritoPage() {
   return (
     <div>
       <h3>Carrito</h3>
-      {cartItems.length === 0 && <div className="alert alert-info">Tu carrito está vacío.</div>}
-      {cartItems.length > 0 && (
+      {cartItemsArray.length === 0 && <div className="alert alert-info">Tu carrito está vacío.</div>}
+      {cartItemsArray.length > 0 && (
         <div className="row">
           <div className="col-md-7">
-            {cartItems.map(item => (
-              <div key={item.id} className="d-flex align-items-center border p-2 mb-2">
+            {cartItemsArray.map(item => (
+              <div key={item.codigo} className="d-flex align-items-center border p-2 mb-2">
                 <img src={item.imagenes?.[0] || '/logo.svg'} width={72} height={72} alt={item.nombre} />
                 <div className="ms-3 flex-grow-1">
                   <strong>{item.nombre}</strong>
-                  <div>${item.precio.toLocaleString('es-CL')}</div>
+                  <div>${item.precioActual.toLocaleString('es-CL')}</div>
                   <div className="d-flex align-items-center mt-2">
                     <input 
                       type="number" 
                       className="form-control me-2" 
                       style={{ width: 80 }} 
-                      value={item.quantity} 
+                      value={item.cantidad} 
                       min={1} 
-                      onChange={(e) => updateQuantity(item.id, Number(e.target.value))} 
+                      onChange={(e) => updateQuantity(item.codigo, Number(e.target.value))} 
                     />
-                    <button className="btn btn-sm btn-danger" onClick={() => removeFromCart(item.id)}>
+                    <button className="btn btn-sm btn-danger" onClick={() => removeFromCart(item.codigo)}>
                       Quitar
                     </button>
                   </div>
@@ -363,7 +364,7 @@ export default function CarritoPage() {
               <button
                 type="submit"
                 className="btn btn-success w-100 mt-3"
-                disabled={processing || !cartItems.length}
+                disabled={processing || !cartItemsArray.length}
               >
                 {processing ? (
                   <>

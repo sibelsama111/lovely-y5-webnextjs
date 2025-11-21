@@ -1,30 +1,31 @@
-# Reglas de Seguridad Firestore - Lovely Y5
+# Reglas de Seguridad Firestore - Lovely Y5 Tienda Web
 
 ## Resumen
-Este archivo contiene las reglas de seguridad de Firestore adaptadas específicamente para el proyecto **Lovely Y5**, una tienda de tecnología que vende productos Apple reacondicionados.
+Este archivo contiene las reglas de seguridad de Firestore para el proyecto **Lovely Y5**, enfocado exclusivamente en la funcionalidad de tienda web de tecnología Apple reacondicionada.
 
 ## Estructura de Permisos
 
 ### Roles de Usuario
 - **admin**: Acceso completo a todos los recursos
-- **trabajador**: Puede leer pedidos y actualizar su estado, gestionar contactos
-- **cliente**: Usuario autenticado estándar
+- **trabajador**: Puede gestionar productos, pedidos y contactos
+- **cliente**: Usuario autenticado estándar con acceso a su perfil y pedidos
 - **guest**: Usuario no autenticado (solo para crear pedidos)
 
 ### Colecciones y Permisos
 
 #### 1. Products (`/products/{productId}`)
 - **Lectura**: Pública (todos los usuarios)
-- **Escritura**: Solo administradores
+- **Escritura**: Administradores y trabajadores
+- **Eliminación**: Solo administradores
 - **Validaciones**:
   - Código debe empezar con `LVL5_`
   - Campos requeridos: `nombre`, `codigo`, `precio`, `stock`, `tipo`, `marca`
   - `precio` debe ser number, `stock` debe ser int
 
-#### 2. Farmacias (`/farmacias/{farmaciaId}`)
+#### 2. Categories (`/categories/{categoryId}`)
 - **Lectura**: Pública
-- **Escritura**: Solo administradores
-- Usado para mostrar farmacias de turno
+- **Escritura**: Administradores y trabajadores
+- Usado para organizar productos por categorías
 
 #### 3. Orders (`/orders/{orderId}`)
 - **Creación**: 
@@ -40,22 +41,23 @@ Este archivo contiene las reglas de seguridad de Firestore adaptadas específica
 - **Eliminación**: Solo administradores
 
 #### 4. Users (`/users/{uid}`)
-- **Creación**: Solo el propio usuario
+- **Creación**: Solo el propio usuario autenticado
 - **Lectura/Actualización**: Usuario propietario o administrador
 - **Eliminación**: Solo administradores
 - **Validaciones**: `correo`, `primerNombre`, `apellidos` requeridos
+- **Roles**: `admin`, `trabajador`, `cliente`
 
 #### 5. Contacts (`/contacts/{contactId}`)
-- **Creación**: Pública (formulario de contacto)
-- **Lectura/Gestión**: Solo administradores y trabajadores
+- **Creación**: Pública (formulario de contacto web)
+- **Lectura/Gestión**: Administradores y trabajadores
 - **Validaciones**: `name`, `email`, `message`, `createdAt` requeridos
 
-#### 6. Settings (`/settings/{settingId}`)
-- **Lectura**: Pública (configuración como horarios, info de contacto)
-- **Escritura**: Solo administradores
+#### 6. Carts (`/carts/{userId}`)
+- **Lectura/Escritura**: Solo el usuario propietario del carrito
+- Usado para persistir carritos de compra entre sesiones
 
-#### 7. Categories (`/categories/{categoryId}`)
-- **Lectura**: Pública
+#### 7. Settings (`/settings/{settingId}`)
+- **Lectura**: Pública (configuración como horarios, info de contacto)
 - **Escritura**: Solo administradores
 
 ## Funciones de Utilidad
@@ -74,21 +76,32 @@ function isWorker()
 function isOwner(userId)
 ```
 
-## Características Específicas de Lovely Y5
+## Características Específicas de Lovely Y5 Tienda Web
 
 1. **Códigos de Producto**: Todos los productos deben tener códigos que empiecen con `LVL5_`
-2. **Roles Específicos**: Sistema de roles adaptado a una tienda (admin, trabajador, cliente)
-3. **Pedidos de Invitados**: Permite compras sin registro usando `customer.id = "guest"`
-4. **Gestión de Trabajadores**: Los trabajadores pueden gestionar pedidos y consultas de contacto
+2. **Sistema de Roles**: 
+   - `admin`: Control total de la tienda
+   - `trabajador`: Gestión de productos, pedidos y atención al cliente
+   - `cliente`: Compras y gestión de perfil personal
+3. **Pedidos sin Registro**: Permite compras como invitado usando `customer.id = "guest"`
+4. **Carritos Persistentes**: Los usuarios autenticados pueden guardar su carrito entre sesiones
+5. **Gestión de Inventario**: Control de stock en tiempo real
 
-## Índices Recomendados
+## Índices Optimizados
 
-Los índices en `firestore.indexes.json` optimizan consultas comunes:
-- Pedidos por usuario y fecha
-- Pedidos por estado y fecha
-- Productos por tipo y precio
-- Productos por marca y precio
-- Contactos por estado y fecha
+Los índices en `firestore.indexes.json` optimizan consultas de la tienda:
+- Pedidos por usuario y fecha de creación
+- Pedidos por estado y fecha (para gestión de trabajadores)
+- Productos por tipo y precio (filtros de catálogo)
+- Productos por marca y precio (filtros de catálogo)
+- Productos por stock disponible
+- Usuarios por rol y fecha de registro
+- Contactos por estado y fecha de creación
+
+## Exclusiones Importantes
+
+- **Farmacias**: NO están en la base de datos principal. La página de farmacias usa API externa y será eliminada próximamente.
+- **Funciones temporales**: Solo se incluyen funcionalidades del core de la tienda web.
 
 ## Despliegue
 
