@@ -1,0 +1,127 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Funciones comunes para el proyecto Lovely Y5
+    function isAdmin() {
+      return request.auth != null && 
+        (request.auth.token.rol == 'admin' || request.auth.token.role == 'admin');
+    }
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isWorker() {
+      return request.auth != null && 
+        (request.auth.token.rol == 'trabajador' || request.auth.token.role == 'trabajador');
+    }
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // Productos Lovely Y5: lectura pública, escritura solo admin. 
+    // Validaciones específicas para códigos LVL5_
+    match /products/{productId} {
+      allow read: if true;
+      allow create, update: if isAdmin()
+        && request.resource.data.nombre is string
+        && request.resource.data.codigo is string
+        && request.resource.data.codigo.matches('^LVL5_.*')
+        && request.resource.data.precio is number
+        && request.resource.data.stock is int
+        && request.resource.data.tipo is string
+        && request.resource.data.marca is string;
+      allow delete: if isAdmin();
+    }
+
+    // Farmacias de turno: lectura pública, escritura solo admin
+    match /farmacias/{farmaciaId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Pedidos/Orders: usuarios autenticados pueden crear pedidos para sí mismos.
+    // Los invitados pueden crear pedidos con customer.id == "guest".
+    // Lectura: admin, trabajador o propietario del pedido.
+    match /orders/{orderId} {
+      allow create: if (
+        isAuthenticated() && 
+        (request.resource.data.userId == request.auth.uid ||
+         request.resource.data.customer.id == request.auth.uid)
+      ) || (
+        request.auth == null && 
+        (request.resource.data.customer.id == 'guest' ||
+         request.resource.data.userId == 'guest')
+      )
+      // Validaciones mínimas para pedidos
+      && request.resource.data.items is list
+      && request.resource.data.total is number
+      && request.resource.data.status is string;
+
+      allow read: if isAdmin()
+        || isWorker()
+        || (isAuthenticated() && 
+           (resource.data.userId == request.auth.uid ||
+            resource.data.customer.id == request.auth.uid))
+        || (request.auth == null && 
+           (resource.data.customer.id == 'guest' ||
+            resource.data.userId == 'guest'));
+
+      // Actualizaciones: admin puede todo, trabajador puede cambiar status
+      allow update: if isAdmin() || 
+        (isWorker() && 
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt']));
+      
+      allow delete: if isAdmin();
+    }
+
+    // Usuarios: cada usuario puede leer/editar su propio documento; admin puede todo.
+    match /users/{uid} {
+      allow create: if isAuthenticated() && request.auth.uid == uid
+        && request.resource.data.correo is string
+        && request.resource.data.primerNombre is string
+        && request.resource.data.apellidos is string;
+      
+      allow read: if isAuthenticated() && (request.auth.uid == uid || isAdmin());
+      
+      allow update: if isAuthenticated() && 
+        (request.auth.uid == uid || isAdmin());
+      
+      allow delete: if isAdmin();
+    }
+
+    // Contactos: formulario público puede crear, solo admin y trabajadores pueden leer/gestionar.
+    match /contacts/{contactId} {
+      allow create: if
+        request.resource.data.name is string
+        && request.resource.data.email is string
+        && request.resource.data.message is string
+        && request.resource.data.createdAt is timestamp;
+
+      allow read: if isAdmin() || isWorker();
+      
+      allow update: if isAdmin() || isWorker();
+      
+      allow delete: if isAdmin();
+    }
+
+    // Configuración de la tienda (opcional): solo admin
+    match /settings/{settingId} {
+      allow read: if true;  // Configuración pública como horarios, info de contacto
+      allow write: if isAdmin();
+    }
+
+    // Categorías de productos: lectura pública, escritura solo admin
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Fallback: restringir todo lo demás por seguridad
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
