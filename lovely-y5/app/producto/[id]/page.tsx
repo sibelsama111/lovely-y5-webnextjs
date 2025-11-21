@@ -5,12 +5,18 @@ import { useEffect, useState, useContext } from 'react'
 import Link from 'next/link'
 import { CartContext } from '../../../context/CartContext'
 import { AuthContext } from '../../../context/AuthContext'
+import { reviewService } from '../../../lib/firebaseServices'
 
 type Review = {
-  user: string;
+  id?: string;
+  productCode: string;
+  userId: string;
+  userName: string;
   rating: number;
   comment: string;
-  at: string;
+  images?: string[];
+  createdAt: any;
+  updatedAt?: any;
 }
 
 type ProductDetails = {
@@ -34,19 +40,41 @@ export default function ProductoDetalle({ params }: { params: { id: string } }) 
   const [rating, setRating] = useState(5)
   const [comment, setComment] = useState('')
   const [reviews, setReviews] = useState<Review[]>([])
+  const [loadingReviews, setLoadingReviews] = useState(false)
+
+  const loadReviews = async (productCode: string) => {
+    try {
+      setLoadingReviews(true)
+      const productReviews = await reviewService.getByProductCode(productCode)
+      setReviews(productReviews)
+    } catch (error) {
+      console.error('Error cargando reseñas desde Firebase:', error)
+      // Fallback a localStorage como respaldo
+      try {
+        const savedReviews = JSON.parse(localStorage.getItem(`reviews_${params.id}`) || '[]')
+        setReviews(savedReviews)
+      } catch (e) {
+        console.error('Error cargando reseñas desde localStorage:', e)
+      }
+    } finally {
+      setLoadingReviews(false)
+    }
+  }
 
   useEffect(() => {
     if (!params.id) return
     fetch('/api/products').then(r => r.json()).then(list => {
       const p = list.find((x: any) => x.id === params.id || x.codigo === params.id)
+      console.log('Producto encontrado:', p) // Debug temporal
+      console.log('fichaTecnica:', p?.fichaTecnica) // Debug temporal
       setProduct(p || null)
-      // Intentar cargar reseñas guardadas
-      try {
-        const savedReviews = JSON.parse(localStorage.getItem(`reviews_${params.id}`) || '[]')
-        setReviews(savedReviews)
-      } catch (e) {
-        console.error('Error cargando reseñas:', e)
+      // Cargar reseñas desde Firebase
+      if (p?.codigo) {
+        loadReviews(p.codigo)
       }
+    }).catch(error => {
+      console.error('Error fetching products:', error)
+      setProduct(null)
     })
   }, [params.id])
 
@@ -62,7 +90,7 @@ export default function ProductoDetalle({ params }: { params: { id: string } }) 
     alert('¡Producto añadido al carrito!')
   }
 
-  const submitReview = () => {
+  const submitReview = async () => {
     if (!user) {
       alert('Debes iniciar sesión para dejar una reseña')
       return
@@ -71,21 +99,48 @@ export default function ProductoDetalle({ params }: { params: { id: string } }) 
       alert('Por favor escribe un comentario')
       return
     }
-    const newReview = {
-      user: `${user.primerNombre} ${user.apellidos}`,
-      rating,
-      comment: comment.trim(),
-      at: new Date().toISOString()
+    if (!product?.codigo) {
+      alert('Error: No se puede identificar el producto')
+      return
     }
-    const updatedReviews = [newReview, ...reviews]
-    setReviews(updatedReviews)
-    // Guardar en localStorage
-    localStorage.setItem(`reviews_${params.id}`, JSON.stringify(updatedReviews))
-    setComment('')
-    setRating(5)
+
+    try {
+      // Verificar si el usuario ya valoró este producto
+      const existingReview = await reviewService.getUserReviewForProduct(user.rut, product.codigo)
+      
+      if (existingReview) {
+        // Actualizar valoración existente
+        await reviewService.update(existingReview.id, {
+          rating,
+          comment: comment.trim()
+        })
+        alert('Valoración actualizada exitosamente')
+      } else {
+        // Crear nueva valoración
+        const newReviewData = {
+          productCode: product.codigo,
+          userId: user.rut,
+          userName: `${user.primerNombre} ${user.apellidos}`,
+          rating,
+          comment: comment.trim(),
+          images: [] // Por ahora vacío, se puede implementar después
+        }
+        await reviewService.create(newReviewData)
+        alert('Valoración agregada exitosamente')
+      }
+      
+      // Recargar reviews
+      await loadReviews(product.codigo)
+      setComment('')
+      setRating(5)
+    } catch (error) {
+      console.error('Error guardando valoración:', error)
+      alert('Error al guardar valoración. Inténtalo nuevamente.')
+    }
   }
 
   if (!product) return <div className="alert alert-warning">Cargando producto...</div>
+  if (!product.nombre) return <div className="alert alert-danger">Producto no encontrado</div>
 
   const averageRating = reviews.length > 0
     ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
@@ -131,20 +186,28 @@ export default function ProductoDetalle({ params }: { params: { id: string } }) 
             )}
           </div>
           
-          <div className="mb-4">
-            <h5>Descripción</h5>
-            <p>{product.descripcion}</p>
-          </div>
+          {product.descripcion && (
+            <div className="mb-4">
+              <h5>Descripción</h5>
+              <p>{product.descripcion}</p>
+            </div>
+          )}
 
           <div className="mb-4">
             <h5>Detalles técnicos</h5>
             <div className="card">
               <ul className="list-group list-group-flush">
-                {Object.entries(product.fichaTecnica).map(([key, value]) => (
-                  <li key={key} className="list-group-item">
-                    <strong>{key}:</strong> {value}
-                  </li>
-                ))}
+                {product.fichaTecnica && typeof product.fichaTecnica === 'object' ? 
+                  Object.entries(product.fichaTecnica).map(([key, value]) => (
+                    <li key={key} className="list-group-item">
+                      <strong>{key}:</strong> {value}
+                    </li>
+                  )) : (
+                    <li className="list-group-item">
+                      <em>Información técnica no disponible</em>
+                    </li>
+                  )
+                }
               </ul>
             </div>
           </div>

@@ -252,3 +252,85 @@ export const categoryService = {
     }
   }
 }
+
+// Servicios para valoraciones de productos
+export const reviewService = {
+  // Obtener valoraciones de un producto
+  async getByProductCode(productCode) {
+    try {
+      const q = query(
+        collection(db, 'reviews'), 
+        where('productCode', '==', productCode),
+        orderBy('createdAt', 'desc')
+      )
+      const querySnapshot = await getDocs(q)
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+    } catch (error) {
+      console.error('Error obteniendo valoraciones:', error)
+      throw error
+    }
+  },
+
+  // Crear nueva valoración
+  async create(reviewData) {
+    try {
+      const docRef = await addDoc(collection(db, 'reviews'), {
+        ...reviewData,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      return docRef.id
+    } catch (error) {
+      console.error('Error creando valoración:', error)
+      throw error
+    }
+  },
+
+  // Actualizar valoración existente
+  async update(reviewId, updates) {
+    try {
+      const docRef = doc(db, 'reviews', reviewId)
+      await updateDoc(docRef, {
+        ...updates,
+        updatedAt: new Date()
+      })
+      return true
+    } catch (error) {
+      console.error('Error actualizando valoración:', error)
+      throw error
+    }
+  },
+
+  // Eliminar valoración
+  async delete(reviewId) {
+    try {
+      await deleteDoc(doc(db, 'reviews', reviewId))
+      return true
+    } catch (error) {
+      console.error('Error eliminando valoración:', error)
+      throw error
+    }
+  },
+
+  // Verificar si un usuario ya valoró un producto
+  async getUserReviewForProduct(userId, productCode) {
+    try {
+      const q = query(
+        collection(db, 'reviews'),
+        where('userId', '==', userId),
+        where('productCode', '==', productCode)
+      )
+      const querySnapshot = await getDocs(q)
+      return querySnapshot.empty ? null : {
+        id: querySnapshot.docs[0].id,
+        ...querySnapshot.docs[0].data()
+      }
+    } catch (error) {
+      console.error('Error verificando valoración de usuario:', error)
+      throw error
+    }
+  }
+}

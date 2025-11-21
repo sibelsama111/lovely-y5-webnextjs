@@ -1,12 +1,24 @@
 // pages/api/products.js
 import { productService } from '../../lib/firebaseServices'
+import { listProducts } from '../../data/products'
 
 export default async function handler(req, res) {
   const { method } = req
   
   try {
     if (method === 'GET') {
-      const products = await productService.getAll()
+      let products
+      try {
+        products = await productService.getAll()
+        // Si no hay productos en Firebase, usar datos locales
+        if (!products || products.length === 0) {
+          console.log('No hay productos en Firebase, usando datos locales')
+          products = listProducts()
+        }
+      } catch (error) {
+        console.log('Error connecting to Firebase, using local data:', error.message)
+        products = listProducts()
+      }
       return res.status(200).json(products)
     }
     if (method === 'POST') {

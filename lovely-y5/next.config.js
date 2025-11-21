@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Remover output: 'export' para poder usar API routes
+  // Configuración optimizada para Firebase Hosting con funciones
   trailingSlash: true,
   webpack: (config, { dev, isServer }) => {
     // Eliminar la advertencia de depreciación

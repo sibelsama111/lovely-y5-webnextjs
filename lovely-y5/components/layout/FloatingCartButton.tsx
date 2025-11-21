@@ -6,7 +6,8 @@ import { CartContext } from '../../context/CartContext'
 
 export default function FloatingCartButton() {
   const { cartItems } = useContext(CartContext)
-  const total = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0)
+  const cartItemsArray = Object.values(cartItems)
+  const total = cartItemsArray.reduce((sum, item) => sum + (item.cantidad || 1), 0)
 
   if (!total) return null
   return (

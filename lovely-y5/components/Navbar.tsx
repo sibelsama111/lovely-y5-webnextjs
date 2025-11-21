@@ -6,14 +6,12 @@ import { AuthContext } from '../context/AuthContext'
 import { CartContext } from '../context/CartContext'
 
 export default function Navbar() {
-  const { user, setUser } = useContext(AuthContext)
+  const { user, logout } = useContext(AuthContext)
   const { cartItems } = useContext(CartContext)
   const [open, setOpen] = useState(false)
-
-  function logout() {
-    setUser(null)
-    localStorage.removeItem('lovely_user')
-  }
+  
+  // Calcular número de items en el carrito
+  const cartItemCount = Object.keys(cartItems).length
 
   return (
     <nav className="navbar navbar-expand-md navbar-light bg-white shadow-sm">
@@ -37,7 +35,7 @@ export default function Navbar() {
             <li className="nav-item"><Link href="/" className="nav-link">Inicio</Link></li>
             <li className="nav-item"><Link href="/productos" className="nav-link">Productos</Link></li>
             <li className="nav-item"><Link href="/contacto" className="nav-link">Contacto</Link></li>
-            <li className="nav-item"><Link href="/carrito" className="nav-link">Carrito {cartItems.length > 0 && <span className="badge bg-primary ms-1">{cartItems.length}</span>}</Link></li>
+            <li className="nav-item"><Link href="/carrito" className="nav-link">Carrito {cartItemCount > 0 && <span className="badge bg-primary ms-1">{cartItemCount}</span>}</Link></li>
 
             {!user && <li className="nav-item"><Link href="/login" className="nav-link">Login</Link></li>}
             {user && <>
