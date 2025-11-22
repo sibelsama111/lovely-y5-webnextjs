@@ -12,24 +12,59 @@ export default function Contacto() {
 
   const submit = async (e: any) => {
     e.preventDefault()
-    if (!form.name || !form.email || !form.message) {
-      toast.error('Completa todos los campos obligatorios')
+    
+    // Validaciones específicas
+    if (!form.name.trim()) {
+      toast.error('El nombre es obligatorio')
+      return
+    }
+    
+    if (form.name.trim().length < 2) {
+      toast.error('El nombre debe tener al menos 2 caracteres')
+      return
+    }
+    
+    if (!form.email.trim()) {
+      toast.error('El correo electrónico es obligatorio')
+      return
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(form.email)) {
+      toast.error('El formato del correo electrónico no es válido')
+      return
+    }
+    
+    if (!form.message.trim()) {
+      toast.error('El mensaje es obligatorio')
+      return
+    }
+    
+    if (form.message.trim().length < 10) {
+      toast.error('El mensaje debe tener al menos 10 caracteres')
       return
     }
     
     setLoading(true)
     try {
       await contactService.create({
-        nombre: form.name,
-        email: form.email,
-        asunto: form.subject || 'Consulta general',
-        mensaje: form.message,
+        nombre: form.name.trim(),
+        email: form.email.trim(),
+        asunto: form.subject.trim() || 'Consulta general',
+        mensaje: form.message.trim(),
         estado: 'pendiente'
       })
       setSent(true)
-    } catch (error) {
+      toast.success('Mensaje enviado correctamente. Te contactaremos pronto.')
+    } catch (error: any) {
       console.error('Error enviando mensaje:', error)
-      toast.error('Error al enviar mensaje. Inténtalo nuevamente.')
+      if (error.message.includes('network')) {
+        toast.error('Error de conexión. Verifica tu conexión a internet')
+      } else if (error.message.includes('permission')) {
+        toast.error('No tienes permisos para enviar mensajes')
+      } else {
+        toast.error(`Error al enviar mensaje: ${error.message || 'Inténtalo nuevamente'}`)
+      }
     } finally {
       setLoading(false)
     }

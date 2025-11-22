@@ -21,10 +21,8 @@ export default function RegistroPage() {
     setForm({ ...form, [e.target.name]: value })
   }
 
-  const validateRUT = (rut: string) => {
-    if (!/^[0-9]{7,8}[0-9K]$/.test(rut)) return false
+  const calculateCorrectDV = (rut: string) => {
     const cleanRut = rut.slice(0, -1)
-    const dv = rut.slice(-1)
     let sum = 0
     let multiplier = 2
     for (let i = cleanRut.length - 1; i >= 0; i--) {
@@ -32,7 +30,14 @@ export default function RegistroPage() {
       multiplier = multiplier === 7 ? 2 : multiplier + 1
     }
     const remainder = sum % 11
-    const calculatedDV = remainder === 0 ? '0' : remainder === 1 ? 'K' : String(11 - remainder)
+    return remainder === 0 ? '0' : remainder === 1 ? 'K' : String(11 - remainder)
+  }
+
+  const validateRUT = (rut: string) => {
+    if (!/^[0-9]{7,8}[0-9K]$/.test(rut)) return false
+    const cleanRut = rut.slice(0, -1)
+    const dv = rut.slice(-1)
+    const calculatedDV = calculateCorrectDV(rut)
     return dv === calculatedDV
   }
 
@@ -41,13 +46,57 @@ export default function RegistroPage() {
     setLoading(true)
     
     try {
-      if (!form.rut || !form.primerNombre || !form.apellidos || !form.correo || !form.password || form.password !== form.password2) {
-        toast.error('Completa campos requeridos y verifica contraseñas.')
+      // Validaciones específicas con mensajes detallados
+      if (!form.rut.trim()) {
+        toast.error('El RUT es obligatorio')
+        return
+      }
+      
+      if (!form.primerNombre.trim()) {
+        toast.error('El primer nombre es obligatorio')
+        return
+      }
+      
+      if (!form.apellidos.trim()) {
+        toast.error('Los apellidos son obligatorios')
+        return
+      }
+      
+      if (!form.correo.trim()) {
+        toast.error('El correo electrónico es obligatorio')
+        return
+      }
+      
+      // Validar formato de correo
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(form.correo)) {
+        toast.error('El formato del correo electrónico no es válido')
+        return
+      }
+      
+      if (!form.password) {
+        toast.error('La contraseña es obligatoria')
+        return
+      }
+      
+      if (form.password.length < 6) {
+        toast.error('La contraseña debe tener al menos 6 caracteres')
+        return
+      }
+      
+      if (!form.password2) {
+        toast.error('Debe confirmar la contraseña')
+        return
+      }
+      
+      if (form.password !== form.password2) {
+        toast.error('Las contraseñas no coinciden')
         return
       }
       
       if (!validateRUT(form.rut)) {
-        toast.error('RUT inválido. Formato: 12345678K (sin puntos ni guión)')
+        const correctDV = calculateCorrectDV(form.rut)
+        toast.error(`RUT inválido. El dígito verificador correcto para ${form.rut.slice(0, -1)} sería: ${correctDV}`)
         return
       }
       
@@ -73,9 +122,15 @@ export default function RegistroPage() {
     } catch (error: any) {
       console.error('Error en registro:', error)
       if (error.message.includes('already exists')) {
-        toast.error('El RUT ya está registrado')
+        toast.error(`El RUT ${form.rut} ya está registrado en el sistema`)
+      } else if (error.message.includes('network')) {
+        toast.error('Error de conexión. Verifica tu conexión a internet')
+      } else if (error.message.includes('permission')) {
+        toast.error('No tienes permisos para realizar esta operación')
+      } else if (error.message.includes('invalid-email')) {
+        toast.error('El formato del correo electrónico no es válido')
       } else {
-        toast.error('Error en el registro. Inténtalo nuevamente.')
+        toast.error(`Error en el registro: ${error.message || 'Error desconocido'}`)
       }
     } finally {
       setLoading(false)

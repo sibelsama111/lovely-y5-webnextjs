@@ -17,19 +17,42 @@ export default function LoginPage() {
     setLoading(true)
     
     try {
+      // Validaciones específicas
+      if (!identifier.trim()) {
+        toast.error('Debe ingresar su RUT, correo o teléfono')
+        return
+      }
+      
+      if (!password.trim()) {
+        toast.error('Debe ingresar su contraseña')
+        return
+      }
+      
       const cleanIdentifier = identifier.replace(/[^0-9kK@.]/g, '').toUpperCase()
       const user = await userService.authenticate(cleanIdentifier, password)
       
       if (user && (user as any).primerNombre) {
         setUser(user as any)
-        toast.success('Login exitoso')
+        toast.success(`Bienvenido/a ${(user as any).primerNombre}`)
         router.push('/')
       } else {
-        toast.error('Credenciales incorrectas')
+        if (identifier.includes('@')) {
+          toast.error('Correo electrónico o contraseña incorrectos')
+        } else if (/^[0-9]{8,9}$/.test(identifier.replace(/\D/g, ''))) {
+          toast.error('Teléfono o contraseña incorrectos')
+        } else {
+          toast.error('RUT o contraseña incorrectos')
+        }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error en login:', error)
-      toast.error('Error al iniciar sesión. Inténtalo nuevamente.')
+      if (error.message.includes('network')) {
+        toast.error('Error de conexión. Verifica tu conexión a internet')
+      } else if (error.message.includes('permission')) {
+        toast.error('No tienes permisos para acceder')
+      } else {
+        toast.error(`Error al iniciar sesión: ${error.message || 'Inténtalo nuevamente'}`)
+      }
     } finally {
       setLoading(false)
     }

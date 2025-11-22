@@ -14,26 +14,101 @@ export default function AdminProductos() {
 
   const create = async (e: any) => {
     e.preventDefault()
-    if (!form.codigo.startsWith('LVL5_')) { toast.error('El código debe comenzar con LVL5_'); return }
-    if (!form.nombre.trim()) { toast.error('El nombre del producto es requerido'); return }
-    if (!form.marca.trim()) { toast.error('La marca es requerida'); return }
-    if (form.precio <= 0) { toast.error('El precio debe ser mayor a 0'); return }
+    
+    // Validaciones específicas detalladas
+    if (!form.codigo.trim()) {
+      toast.error('El código del producto es obligatorio')
+      return
+    }
+    
+    if (!form.codigo.startsWith('LVL5_')) {
+      toast.error('El código debe comenzar con "LVL5_" (ej: LVL5_TELEFONO_001)')
+      return
+    }
+    
+    if (form.codigo.length < 8) {
+      toast.error('El código debe tener al menos 8 caracteres')
+      return
+    }
+    
+    if (!form.nombre.trim()) {
+      toast.error('El nombre del producto es obligatorio')
+      return
+    }
+    
+    if (form.nombre.trim().length < 3) {
+      toast.error('El nombre del producto debe tener al menos 3 caracteres')
+      return
+    }
+    
+    if (!form.marca.trim()) {
+      toast.error('La marca del producto es obligatoria')
+      return
+    }
+    
+    if (!form.tipo.trim()) {
+      toast.error('El tipo/categoría del producto es obligatorio')
+      return
+    }
+    
+    if (!form.precio || isNaN(Number(form.precio)) || Number(form.precio) <= 0) {
+      toast.error('El precio debe ser un número mayor a 0')
+      return
+    }
+    
+    if (isNaN(Number(form.stock)) || Number(form.stock) < 0) {
+      toast.error('El stock debe ser un número mayor o igual a 0')
+      return
+    }
+    
+    // Validar JSON de ficha técnica
+    try {
+      if (form.fichaTecnica.trim()) {
+        JSON.parse(form.fichaTecnica)
+      }
+    } catch (jsonError) {
+      toast.error('La ficha técnica debe ser un JSON válido (ej: {"ram":"8GB","color":"Negro"})')
+      return
+    }
     
     try {
-      const fichaTecnica = form.fichaTecnica ? JSON.parse(form.fichaTecnica) : {}
-      const p = { id: uuidv4(), ...form, precio: Number(form.precio), stock: Number(form.stock), imagenes: ['/logo.svg'], fichaTecnica }
-      const response = await fetch('/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) })
+      const fichaTecnica = form.fichaTecnica.trim() ? JSON.parse(form.fichaTecnica) : {}
+      const p = { 
+        id: uuidv4(), 
+        ...form, 
+        codigo: form.codigo.trim().toUpperCase(),
+        nombre: form.nombre.trim(),
+        marca: form.marca.trim(),
+        tipo: form.tipo.trim(),
+        precio: Number(form.precio), 
+        stock: Number(form.stock), 
+        imagenes: ['/logo.svg'], 
+        fichaTecnica 
+      }
+      
+      const response = await fetch('/api/products', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify(p) 
+      })
       
       if (!response.ok) {
-        throw new Error('Error al crear el producto')
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.message || `Error HTTP ${response.status}`)
       }
       
       setProducts(prev => [p, ...prev])
-      toast.success('Producto creado exitosamente')
+      toast.success(`Producto "${p.nombre}" creado exitosamente`)
       setForm({ codigo: 'LVL5_', nombre: '', marca: '', tipo: '', precio: 0, imagenes: [], descripcion: '', detalles: '', fichaTecnica: '{}', stock: 0 })
-    } catch (error) {
+    } catch (error: any) {
       console.error(error)
-      toast.error('Error al crear el producto: ' + (error instanceof Error ? error.message : 'Error desconocido'))
+      if (error.message.includes('duplicate') || error.message.includes('exists')) {
+        toast.error(`Ya existe un producto con el código "${form.codigo}"`)
+      } else if (error.message.includes('network')) {
+        toast.error('Error de conexión. Verifica tu conexión a internet')
+      } else {
+        toast.error(`Error al crear producto: ${error.message || 'Error desconocido'}`)
+      }
     }
   }
 
