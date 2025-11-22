@@ -55,6 +55,7 @@ export default function IntranetPage() {
             </div>
           </div>
         </div>
+        <footer className="mt-4 text-center text-muted">hoy es un gran dia porque tu esfuerzo vale</footer>
       </div>
     )
   }
@@ -65,6 +66,7 @@ export default function IntranetPage() {
       <div className="alert alert-warning">
         No tienes acceso a esta sección. Esta área es solo para trabajadores.
       </div>
+      <footer className="mt-4 text-center text-muted">hoy es un gran dia porque tu esfuerzo vale</footer>
     </div>
   )
 }

@@ -33,6 +33,17 @@ export default function IntranetLogin() {
           <h3 className="mt-3">Intranet Lovely Y5</h3>
         </div>
 
+        <div className="mb-3 d-flex">
+          <div className="me-auto">
+            <button type="button" className="btn btn-link p-0" onClick={() => router.back()}>
+              ← Volver
+            </button>
+            <button type="button" className="btn btn-link p-0 ms-3" onClick={() => router.push('/login')}>
+              Volver a inicio (cliente)
+            </button>
+          </div>
+        </div>
+
         <form onSubmit={submit} className="mb-4">
           <div className="mb-3">
             <label className="form-label">RUT</label>
@@ -61,13 +72,6 @@ export default function IntranetLogin() {
             <button type="submit" className="btn btn-primary">
               Iniciar sesión
             </button>
-            <button 
-              type="button" 
-              className="btn btn-outline-primary"
-              onClick={() => router.push('/admin/registro')}
-            >
-              Registro de trabajadores
-            </button>
           </div>
 
           <div className="text-center mt-4">
@@ -83,48 +87,5 @@ export default function IntranetLogin() {
 
       </div>
     </div>
-  )
-}
-
-function WorkerRegister() {
-  const [code, setCode] = useState('')
-  const [form, setForm] = useState({ rut:'', primerNombre:'', segundoNombre:'', apellidos:'', correo:'', direccion:'', afp:'', salud:'', password:'', password2:'' })
-
-  const handle = e => setForm({...form,[e.target.name]: e.target.value})
-
-  const submit = (e) => {
-    e.preventDefault()
-    if (code !== 'LVLWRKR5') { toast.error('Código inválido'); return }
-    if (!form.rut || !form.primerNombre || !form.apellidos || !form.correo || !form.password || form.password !== form.password2) { toast.error('Completa bien los campos'); return }
-    const workers = JSON.parse(localStorage.getItem('lovely_workers') || '[]')
-    const neww = {...form, puesto: 'Vendedor/a', sueldoBase: 560000}
-    workers.push(neww)
-    localStorage.setItem('lovely_workers', JSON.stringify(workers))
-    toast.success('Registro trabajador OK. Ahora inicia sesión en Intranet.')
-    setForm({ rut:'', primerNombre:'', segundoNombre:'', apellidos:'', correo:'', direccion:'', afp:'', salud:'', password:'', password2:'' })
-    setCode('')
-  }
-
-  return (
-    <form onSubmit={submit}>
-      <input className="form-control mb-2" placeholder="Código de trabajador" value={code} onChange={e=>setCode(e.target.value)} />
-      <div className="row">
-        <div className="col-md-6 mb-2"><input className="form-control" name="rut" placeholder="RUT" value={form.rut} onChange={handle} /></div>
-        <div className="col-md-6 mb-2"><input className="form-control" name="primerNombre" placeholder="Primer nombre" value={form.primerNombre} onChange={handle} /></div>
-        <div className="col-md-6 mb-2"><input className="form-control" name="segundoNombre" placeholder="Segundo nombre (opcional)" value={form.segundoNombre} onChange={handle} /></div>
-        <div className="col-md-6 mb-2"><input className="form-control" name="apellidos" placeholder="Apellidos" value={form.apellidos} onChange={handle} /></div>
-        <div className="col-md-6 mb-2"><input className="form-control" name="correo" placeholder="Correo" value={form.correo} onChange={handle} /></div>
-        <div className="col-md-6 mb-2"><input className="form-control" name="direccion" placeholder="Dirección" value={form.direccion} onChange={handle} /></div>
-        <div className="col-md-6 mb-2"><input className="form-control" name="afp" placeholder="AFP" value={form.afp} onChange={handle} /></div>
-        <div className="col-md-6 mb-2"><input className="form-control" name="salud" placeholder="ISAPRE o FONASA" value={form.salud} onChange={handle} /></div>
-        <div className="col-md-6 mb-2"><input className="form-control" name="password" type="password" placeholder="Contraseña" value={form.password} onChange={handle} /></div>
-        <div className="col-md-6 mb-2"><input className="form-control" name="password2" type="password" placeholder="Repetir contraseña" value={form.password2} onChange={handle} /></div>
-      </div>
-      <div className="form-check mb-2">
-        <input type="checkbox" className="form-check-input" id="accept" required />
-        <label className="form-check-label" htmlFor="accept">Entiendo que mis datos se solicitan con fines exclusivamente laborales.</label>
-      </div>
-      <button className="btn btn-success">Registrar trabajador</button>
-    </form>
-  )
+  </div>
 }

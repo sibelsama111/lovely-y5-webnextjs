@@ -2,6 +2,7 @@
 import '../globals.css'
 import { AuthProvider } from '../../context/AuthContext'
 import Link from 'next/link'
+import AdminShell from '../../components/admin/AdminShell'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -16,21 +17,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           </div>
           <AuthProvider>
-            <div className="row">
-              <aside className="col-md-3">
-                <div className="list-group">
-                  <Link href="/admin" className="list-group-item">Dashboard</Link>
-                  <Link href="/admin/pedidos" className="list-group-item">Pedidos</Link>
-                  <Link href="/admin/productos" className="list-group-item">Productos</Link>
-                  <Link href="/admin/contacto" className="list-group-item">Contactos</Link>
-                  <Link href="/admin/perfil" className="list-group-item">Perfil</Link>
-                </div>
-              </aside>
-              <main className="col-md-9">
-                {children}
-              </main>
-            </div>
+            <AdminShell>
+              {children}
+            </AdminShell>
           </AuthProvider>
+          <footer className="mt-4 text-center text-muted">hoy es un gran dia porque tu esfuerzo vale</footer>
         </div>
       </body>
     </html>
