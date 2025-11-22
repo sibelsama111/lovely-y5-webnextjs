@@ -3,6 +3,7 @@ import { useState, useContext } from 'react'
 import { AuthContext } from '../../context/AuthContext'
 import { userService } from '../../lib/firebaseServices'
 import { useRouter } from 'next/navigation'
+import { toast } from 'react-hot-toast'
 
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState('')
@@ -21,14 +22,14 @@ export default function LoginPage() {
       
       if (user && (user as any).primerNombre) {
         setUser(user as any)
-        alert('Login exitoso')
+        toast.success('Login exitoso')
         router.push('/')
       } else {
-        alert('Credenciales incorrectas')
+        toast.error('Credenciales incorrectas')
       }
     } catch (error) {
       console.error('Error en login:', error)
-      alert('Error al iniciar sesión. Inténtalo nuevamente.')
+      toast.error('Error al iniciar sesión. Inténtalo nuevamente.')
     } finally {
       setLoading(false)
     }

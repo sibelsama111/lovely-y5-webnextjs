@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { contactService } from '../../lib/firebaseServices'
+import { toast } from 'react-hot-toast'
 
 export default function Contacto() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' })
@@ -12,7 +13,7 @@ export default function Contacto() {
   const submit = async (e: any) => {
     e.preventDefault()
     if (!form.name || !form.email || !form.message) {
-      alert('Completa todos los campos obligatorios')
+      toast.error('Completa todos los campos obligatorios')
       return
     }
     
@@ -28,7 +29,7 @@ export default function Contacto() {
       setSent(true)
     } catch (error) {
       console.error('Error enviando mensaje:', error)
-      alert('Error al enviar mensaje. Inténtalo nuevamente.')
+      toast.error('Error al enviar mensaje. Inténtalo nuevamente.')
     } finally {
       setLoading(false)
     }

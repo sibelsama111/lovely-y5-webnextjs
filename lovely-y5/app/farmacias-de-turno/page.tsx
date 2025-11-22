@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import { toast } from 'react-hot-toast'
 
 type Farmacia = Record<string, any>
 
@@ -18,7 +19,7 @@ export default function FarmaciasTurnoPage() {
 
   const locateAndSort = () => {
     if (typeof window === 'undefined' || !('geolocation' in navigator)) {
-      alert('Geolocation no está disponible en este navegador')
+      toast.error('Geolocation no está disponible en este navegador')
       return
     }
     navigator.geolocation.getCurrentPosition((pos) => {
@@ -43,7 +44,7 @@ export default function FarmaciasTurnoPage() {
       })
     }, (err) => {
       console.error('Error al obtener ubicación', err)
-      alert('No se pudo obtener la ubicación')
+      toast.error('No se pudo obtener la ubicación')
     })
   }
 

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { CartContext } from '../../../context/CartContext'
 import { AuthContext } from '../../../context/AuthContext'
 import { reviewService } from '../../../lib/firebaseServices'
+import { toast } from 'react-hot-toast'
 
 type Review = {
   id?: string;
@@ -87,20 +88,20 @@ export default function ProductoDetalle({ params }: { params: { id: string } }) 
       precioActual: (product as any).precioActual || product.precio,
       imagenes: product.imagenes
     })
-    alert('¡Producto añadido al carrito!')
+    toast.success('¡Producto añadido al carrito!')
   }
 
   const submitReview = async () => {
     if (!user) {
-      alert('Debes iniciar sesión para dejar una reseña')
+      toast.error('Debes iniciar sesión para dejar una reseña')
       return
     }
     if (!comment.trim()) {
-      alert('Por favor escribe un comentario')
+      toast.error('Por favor escribe un comentario')
       return
     }
     if (!product?.codigo) {
-      alert('Error: No se puede identificar el producto')
+      toast.error('Error: No se puede identificar el producto')
       return
     }
 
@@ -114,7 +115,7 @@ export default function ProductoDetalle({ params }: { params: { id: string } }) 
           rating,
           comment: comment.trim()
         })
-        alert('Valoración actualizada exitosamente')
+        toast.success('Valoración actualizada exitosamente')
       } else {
         // Crear nueva valoración
         const newReviewData = {
@@ -126,7 +127,7 @@ export default function ProductoDetalle({ params }: { params: { id: string } }) 
           images: [] // Por ahora vacío, se puede implementar después
         }
         await reviewService.create(newReviewData)
-        alert('Valoración agregada exitosamente')
+        toast.success('Valoración agregada exitosamente')
       }
       
       // Recargar reviews
@@ -135,7 +136,7 @@ export default function ProductoDetalle({ params }: { params: { id: string } }) 
       setRating(5)
     } catch (error) {
       console.error('Error guardando valoración:', error)
-      alert('Error al guardar valoración. Inténtalo nuevamente.')
+      toast.error('Error al guardar valoración. Inténtalo nuevamente.')
     }
   }
 

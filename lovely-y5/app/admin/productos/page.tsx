@@ -2,6 +2,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+import { toast } from 'react-hot-toast'
 
 export default function AdminProductos() {
   const [products, setProducts] = useState<any[]>([])
@@ -13,11 +14,11 @@ export default function AdminProductos() {
 
   const create = async (e: any) => {
     e.preventDefault()
-    if (!form.codigo.startsWith('LVL5_')) { alert('El código debe comenzar con LVL5_'); return }
+    if (!form.codigo.startsWith('LVL5_')) { toast.error('El código debe comenzar con LVL5_'); return }
     const p = { id: uuidv4(), ...form, precio: Number(form.precio), stock: Number(form.stock), imagenes: ['/svgs/logo.svg'], fichaTecnica: JSON.parse(form.fichaTecnica || '{}') }
     await fetch('/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) })
     setProducts(prev => [p, ...prev])
-    alert('Producto creado (demo)')
+    toast.success('Producto creado (demo)')
     setForm({ codigo: 'LVL5_', nombre: '', marca: '', tipo: '', precio: 0, imagenes: [], descripcion: '', detalles: '', fichaTecnica: '{}', stock: 0 })
   }
 

@@ -3,6 +3,7 @@ import { useState, useContext } from 'react'
 import { AuthContext } from '../../context/AuthContext'
 import { userService } from '../../lib/firebaseServices'
 import { useRouter } from 'next/navigation'
+import { toast } from 'react-hot-toast'
 
 export default function RegistroPage() {
   const { setUser } = useContext(AuthContext)
@@ -41,12 +42,12 @@ export default function RegistroPage() {
     
     try {
       if (!form.rut || !form.primerNombre || !form.apellidos || !form.correo || !form.password || form.password !== form.password2) {
-        alert('Completa campos requeridos y verifica contraseñas.')
+        toast.error('Completa campos requeridos y verifica contraseñas.')
         return
       }
       
       if (!validateRUT(form.rut)) {
-        alert('RUT inválido. Formato: 12345678K (sin puntos ni guión)')
+        toast.error('RUT inválido. Formato: 12345678K (sin puntos ni guión)')
         return
       }
       
@@ -66,15 +67,15 @@ export default function RegistroPage() {
       const userId = await userService.create(userData)
       if (userId) {
         setUser(userData)
-        alert('Registro exitoso')
+        toast.success('Registro exitoso')
         router.push('/')
       }
     } catch (error: any) {
       console.error('Error en registro:', error)
       if (error.message.includes('already exists')) {
-        alert('El RUT ya está registrado')
+        toast.error('El RUT ya está registrado')
       } else {
-        alert('Error en el registro. Inténtalo nuevamente.')
+        toast.error('Error en el registro. Inténtalo nuevamente.')
       }
     } finally {
       setLoading(false)

@@ -3,6 +3,7 @@
 import { useState, useContext } from 'react'
 import { AuthContext } from '../../../context/AuthContext'
 import { useRouter } from 'next/navigation'
+import { toast } from 'react-hot-toast'
 
 export default function IntranetLogin() {
   const [rut, setRut] = useState('')
@@ -20,7 +21,7 @@ export default function IntranetLogin() {
       setUser({...w, isWorker:true})
       router.push('/intranet/dashboard')
     } else {
-      alert('Credenciales intranet incorrectas')
+      toast.error('Credenciales intranet incorrectas')
     }
   }
 
@@ -93,13 +94,13 @@ function WorkerRegister() {
 
   const submit = (e) => {
     e.preventDefault()
-    if (code !== 'LVLWRKR5') { alert('Código inválido'); return }
-    if (!form.rut || !form.primerNombre || !form.apellidos || !form.correo || !form.password || form.password !== form.password2) { alert('Completa bien los campos'); return }
+    if (code !== 'LVLWRKR5') { toast.error('Código inválido'); return }
+    if (!form.rut || !form.primerNombre || !form.apellidos || !form.correo || !form.password || form.password !== form.password2) { toast.error('Completa bien los campos'); return }
     const workers = JSON.parse(localStorage.getItem('lovely_workers') || '[]')
     const neww = {...form, puesto: 'Vendedor/a', sueldoBase: 560000}
     workers.push(neww)
     localStorage.setItem('lovely_workers', JSON.stringify(workers))
-    alert('Registro trabajador OK. Ahora inicia sesión en Intranet.')
+    toast.success('Registro trabajador OK. Ahora inicia sesión en Intranet.')
     setForm({ rut:'', primerNombre:'', segundoNombre:'', apellidos:'', correo:'', direccion:'', afp:'', salud:'', password:'', password2:'' })
     setCode('')
   }
