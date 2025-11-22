@@ -218,21 +218,36 @@ export const userService = {
   // Crear nuevo usuario
   async create(userData) {
     try {
+      console.log('🔧 userService.create - Iniciando con datos:', userData)
+      
       // Verificar si el RUT ya existe
+      console.log('🔧 Verificando si RUT existe:', userData.rut)
       const existingUser = await this.getByRUT(userData.rut)
       if (existingUser) {
+        console.log('❌ RUT ya existe:', userData.rut)
         throw new Error('User already exists')
       }
-
+      
+      console.log('✅ RUT disponible, creando usuario...')
       const docRef = doc(db, 'users', userData.rut)
-      await setDoc(docRef, {
+      const dataToSave = {
         ...userData,
         createdAt: new Date(),
         updatedAt: new Date()
-      })
+      }
+      
+      console.log('🔧 Datos a guardar en Firestore:', dataToSave)
+      console.log('🔧 Referencia del documento:', docRef.path)
+      
+      await setDoc(docRef, dataToSave)
+      console.log('✅ Usuario guardado exitosamente')
+      
       return userData.rut
     } catch (error) {
-      console.error('Error creando usuario:', error)
+      console.error('❌ Error creando usuario:', error)
+      console.error('❌ Tipo de error:', error.constructor.name)
+      console.error('❌ Mensaje completo:', error.message)
+      console.error('❌ Stack trace:', error.stack)
       throw error
     }
   },

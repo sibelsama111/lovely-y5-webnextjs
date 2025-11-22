@@ -113,7 +113,11 @@ export default function RegistroPage() {
         activo: true
       }
       
+      console.log('🔧 Intentando crear usuario:', userData)
+      
       const userId = await userService.create(userData)
+      console.log('✅ Usuario creado con ID:', userId)
+      
       if (userId) {
         setUser(userData)
         toast.success('Registro exitoso')

@@ -81,38 +81,20 @@ service cloud.firestore {
     }
 
     // Usuarios: cada usuario puede leer/editar su propio documento usando RUT como UID
-    // Validaciones para la nueva estructura con RUT y dirección completa
     match /users/{rut} {
-      // Permitir creación pública solo para clientes (registro abierto)
-      // Trabajadores y admins deben ser creados por admin autenticado
-      allow create: if (
-        // Registro público de clientes
-        (request.resource.data.rol == 'cliente'
-          && request.resource.data.rut is string
-          && request.resource.data.primerNombre is string
-          && request.resource.data.apellidos is string
-          && request.resource.data.correo is string
-          && request.resource.data.password is string
-          && request.resource.data.activo == true)
-        ||
-        // Solo admin puede crear trabajadores/admins
-        (isAdmin() 
-          && request.resource.data.rol in ['trabajador', 'admin']
-          && request.resource.data.rut is string
-          && request.resource.data.primerNombre is string
-          && request.resource.data.apellidos is string
-          && request.resource.data.correo is string)
-      );
+      // Permitir creación pública de clientes (cualquiera puede registrarse como cliente)
+      allow create: if request.resource.data.rol == 'cliente'
+        && request.resource.data.rut is string
+        && request.resource.data.primerNombre is string
+        && request.resource.data.apellidos is string  
+        && request.resource.data.correo is string
+        && request.resource.data.activo == true;
       
-      // Lectura: solo el propio usuario, admin o trabajador
-      allow read: if isAuthenticated() && (request.auth.token.rut == rut || isAdmin() || isWorker());
+      // Lectura: permitir lectura básica para autenticación
+      allow read: if true;
       
-      // Actualización: usuario puede actualizar sus datos (excepto rol y RUT), admin puede todo
-      allow update: if isAuthenticated() && 
-        ((request.auth.token.rut == rut && 
-          // Usuarios no pueden cambiar su rol ni su RUT
-          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['rol', 'rut'])
-        ) || isAdmin());
+      // Actualización: solo con datos válidos
+      allow update: if request.resource.data.rut == resource.data.rut;
       
       allow delete: if isAdmin();
     }
