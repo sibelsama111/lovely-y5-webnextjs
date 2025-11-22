@@ -87,5 +87,5 @@ export default function IntranetLogin() {
 
       </div>
     </div>
-  </div>
+  )
 }
