@@ -83,22 +83,31 @@ service cloud.firestore {
     // Usuarios: cada usuario puede leer/editar su propio documento usando RUT como UID
     // Validaciones para la nueva estructura con RUT y dirección completa
     match /users/{rut} {
-      allow create: if isAuthenticated() && request.auth.token.rut == rut
-        && request.resource.data.rut is string
-        && request.resource.data.rut.matches('^[0-9]{7,8}-[0-9kK]$')
-        && request.resource.data.nombres is string
-        && request.resource.data.apellidos is string
-        && request.resource.data.email is string
-        && request.resource.data.telefono is string
-        && request.resource.data.direccion is map
-        && request.resource.data.direccion.calle is string
-        && request.resource.data.direccion.numero is string
-        && request.resource.data.direccion.comuna is string
-        && request.resource.data.direccion.region is string
-        && request.resource.data.rol in ['cliente', 'admin', 'trabajador'];
+      // Permitir creación pública solo para clientes (registro abierto)
+      // Trabajadores y admins deben ser creados por admin autenticado
+      allow create: if (
+        // Registro público de clientes
+        (request.resource.data.rol == 'cliente'
+          && request.resource.data.rut is string
+          && request.resource.data.primerNombre is string
+          && request.resource.data.apellidos is string
+          && request.resource.data.correo is string
+          && request.resource.data.password is string
+          && request.resource.data.activo == true)
+        ||
+        // Solo admin puede crear trabajadores/admins
+        (isAdmin() 
+          && request.resource.data.rol in ['trabajador', 'admin']
+          && request.resource.data.rut is string
+          && request.resource.data.primerNombre is string
+          && request.resource.data.apellidos is string
+          && request.resource.data.correo is string)
+      );
       
+      // Lectura: solo el propio usuario, admin o trabajador
       allow read: if isAuthenticated() && (request.auth.token.rut == rut || isAdmin() || isWorker());
       
+      // Actualización: usuario puede actualizar sus datos (excepto rol y RUT), admin puede todo
       allow update: if isAuthenticated() && 
         ((request.auth.token.rut == rut && 
           // Usuarios no pueden cambiar su rol ni su RUT
@@ -118,9 +127,9 @@ service cloud.firestore {
     // Contactos: formulario público puede crear, solo admin y trabajadores pueden leer/gestionar.
     match /contacts/{contactId} {
       allow create: if
-        request.resource.data.name is string
+        request.resource.data.nombre is string
         && request.resource.data.email is string
-        && request.resource.data.message is string
+        && request.resource.data.mensaje is string
         && request.resource.data.createdAt is timestamp;
 
       allow read: if isAdmin() || isWorker();
