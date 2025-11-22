@@ -1,7 +1,7 @@
 // components/Navbar.tsx
 'use client'
 import Link from 'next/link'
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import { AuthContext } from '../context/AuthContext'
 import { CartContext } from '../context/CartContext'
 
@@ -9,6 +9,11 @@ export default function Navbar() {
   const { user, logout } = useContext(AuthContext)
   const { cartItems } = useContext(CartContext)
   const [open, setOpen] = useState(false)
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
   
   // Calcular número de items en el carrito
   const cartItemCount = Object.keys(cartItems).length
@@ -35,7 +40,11 @@ export default function Navbar() {
             <li className="nav-item"><Link href="/" className="nav-link">Inicio</Link></li>
             <li className="nav-item"><Link href="/productos" className="nav-link">Productos</Link></li>
             <li className="nav-item"><Link href="/contacto" className="nav-link">Contacto</Link></li>
-            <li className="nav-item"><Link href="/carrito" className="nav-link">Carrito {cartItemCount > 0 && <span className="badge bg-primary ms-1">{cartItemCount}</span>}</Link></li>
+            <li className="nav-item">
+              <Link href="/carrito" className="nav-link">
+                Carrito {isClient && cartItemCount > 0 && <span className="badge bg-primary ms-1">{cartItemCount}</span>}
+              </Link>
+            </li>
 
             {!user && <li className="nav-item"><Link href="/login" className="nav-link">Login</Link></li>}
             {user && <>
