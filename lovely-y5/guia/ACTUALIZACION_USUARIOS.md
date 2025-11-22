@@ -6,7 +6,7 @@
 - **RUT**: Campo obligatorio con validación de formato chileno
 - **Nombres/Apellidos**: Separados para mayor flexibilidad
 - **Dirección completa**: Calle, número, comuna, región
-- **Foto de perfil**: Almacenamiento en Firebase Storage
+- **Foto de perfil**: Almacenamiento aaaaaaaaaaaaaaaaaaaaaaaaaaaaaen Firebase Storage
 - **Validaciones**: RUT único, formato de teléfono, regiones válidas
 
 ### 2. **Archivos Modificados**
