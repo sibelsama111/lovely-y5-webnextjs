@@ -31,9 +31,11 @@ export default function LoginPage() {
       const cleanIdentifier = identifier.replace(/[^0-9kK@.]/g, '').toUpperCase()
       const user = await userService.authenticate(cleanIdentifier, password)
       
-      if (user && (user as any).primerNombre) {
-        setUser(user as any)
-        toast.success(`Bienvenido/a ${(user as any).primerNombre}`)
+      if (user && (user as any).nombres) {
+        // No incluir password en el contexto
+        const { password: _, ...userWithoutPassword } = user as any
+        setUser(userWithoutPassword)
+        toast.success(`Bienvenido/a ${(user as any).nombres}`)
         router.push('/')
       } else {
         if (identifier.includes('@')) {

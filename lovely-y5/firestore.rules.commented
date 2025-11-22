@@ -2,28 +2,39 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Funciones comunes para el proyecto Lovely Y5 - Tienda Web
+    // ============================================
+    // FUNCIONES DE UTILIDAD
+    // ============================================
+    
+    // Verificar si el usuario es administrador
     function isAdmin() {
       return request.auth != null && 
         (request.auth.token.rol == 'admin' || request.auth.token.role == 'admin');
     }
 
+    // Verificar si el usuario está autenticado
     function isAuthenticated() {
       return request.auth != null;
     }
 
+    // Verificar si el usuario es trabajador
     function isWorker() {
       return request.auth != null && 
         (request.auth.token.rol == 'trabajador' || request.auth.token.role == 'trabajador');
     }
 
+    // Verificar si el usuario es cliente
     function isCustomer() {
       return request.auth != null && 
         (request.auth.token.rol == 'cliente' || request.auth.token.role == 'cliente');
     }
 
-    // Productos Lovely Y5: lectura pública, escritura solo admin y trabajadores
-    // Validaciones específicas para códigos LVL5_
+    // ============================================
+    // REGLA: PRODUCTOS
+    // ============================================
+    // Lectura: Público
+    // Escritura: Admin y Trabajadores
+    // Eliminación: Solo Admin
     match /products/{productId} {
       allow read: if true;
       allow create, update: if (isAdmin() || isWorker())
@@ -37,9 +48,13 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // Pedidos/Orders: usuarios autenticados pueden crear pedidos para sí mismos.
-    // Los invitados pueden crear pedidos con customer.id == "guest".
-    // Lectura: admin, trabajador o propietario del pedido.
+    // ============================================
+    // REGLA: PEDIDOS/ORDERS
+    // ============================================
+    // Creación: Usuarios autenticados para sí mismos, invitados como "guest"
+    // Lectura: Admin, Trabajador, o propietario del pedido
+    // Actualización: Admin (todo), Trabajador (solo status)
+    // Eliminación: Solo Admin
     match /orders/{orderId} {
       allow create: if (
         isAuthenticated() && 
@@ -50,7 +65,6 @@ service cloud.firestore {
         (request.resource.data.customer.id == 'guest' ||
          request.resource.data.userId == 'guest')
       )
-      // Validaciones para estructura de pedidos con nueva info de customer
       && request.resource.data.items is list
       && request.resource.data.total is number
       && request.resource.data.status is string
@@ -72,7 +86,6 @@ service cloud.firestore {
            (resource.data.customer.id == 'guest' ||
             resource.data.userId == 'guest'));
 
-      // Actualizaciones: admin puede todo, trabajador puede cambiar status
       allow update: if isAdmin() || 
         (isWorker() && 
          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt']));
@@ -80,20 +93,39 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // Usuarios: cada usuario puede leer/editar su propio documento usando RUT como UID
-    // Permitir registro libre solo para clientes (rol: 'cliente')
-    // Los trabajadores y administradores solo pueden ser creados por un admin
+    // ============================================
+    // REGLA: USUARIOS
+    // ============================================
+    // IMPORTANTE: Sistema de registro libre para clientes
+    // 
+    // Creación:
+    //   ✅ Cualquier persona puede crear cuenta con rol "cliente"
+    //   ❌ Solo admin puede crear trabajadores o administradores
+    //
+    // Validaciones para clientes:
+    //   - RUT válido y único (usado como ID del documento)
+    //   - Nombres y apellidos requeridos
+    //   - Email válido
+    //   - Teléfono como número
+    //   - Dirección completa (calle, numero, comuna, region)
+    //   - Password (mínimo 6 caracteres)
+    //   - createdAt timestamp
+    //
+    // Lectura: Pública (necesaria para autenticación)
+    // Actualización: Solo el propio usuario o admin
+    // Eliminación: Solo admin
     match /users/{rut} {
-      // Permitir creación pública SOLO de clientes con validaciones estrictas
+      // ✅ REGISTRO LIBRE DE CLIENTES
+      // Cualquier persona puede registrarse como cliente
       allow create: if request.resource.data.rol == 'cliente'
         && request.resource.data.RUT is string
-        && request.resource.data.RUT == rut  // El RUT del documento debe coincidir con los datos
+        && request.resource.data.RUT == rut  // El RUT debe coincidir con el ID del documento
         && request.resource.data.nombres is string
         && request.resource.data.nombres.size() > 0
         && request.resource.data.apellidos is string  
         && request.resource.data.apellidos.size() > 0
         && request.resource.data.email is string
-        && request.resource.data.email.matches('.*@.*\\..*')
+        && request.resource.data.email.matches('.*@.*\\..*')  // Validar formato de email
         && request.resource.data.telefono is number
         && request.resource.data.direccion is map
         && request.resource.data.direccion.calle is string
@@ -104,10 +136,10 @@ service cloud.firestore {
         && request.resource.data.password.size() >= 6
         && request.resource.data.createdAt is timestamp;
       
-      // Lectura: permitir lectura para autenticación y verificación
+      // Lectura pública necesaria para autenticación y verificación de RUT duplicado
       allow read: if true;
       
-      // Actualización: solo el propio usuario o admin
+      // Actualización: solo el propio usuario autenticado o admin
       allow update: if (isAuthenticated() && request.auth.token.rut == rut) 
         || isAdmin();
       
@@ -115,14 +147,21 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // Carritos: cada usuario puede gestionar su propio carrito usando RUT como ID
+    // ============================================
+    // REGLA: CARRITOS
+    // ============================================
+    // Cada usuario puede gestionar su propio carrito usando RUT como ID
     match /carts/{rut} {
       allow read, write: if isAuthenticated() && request.auth.token.rut == rut;
       allow read: if isAdmin() || isWorker();
       allow delete: if isAdmin();
     }
 
-    // Contactos: formulario público puede crear, solo admin y trabajadores pueden leer/gestionar.
+    // ============================================
+    // REGLA: CONTACTOS
+    // ============================================
+    // Formulario público puede crear consultas
+    // Solo admin y trabajadores pueden leer/gestionar
     match /contacts/{contactId} {
       allow create: if
         request.resource.data.nombre is string
@@ -131,50 +170,54 @@ service cloud.firestore {
         && request.resource.data.createdAt is timestamp;
 
       allow read: if isAdmin() || isWorker();
-      
       allow update: if isAdmin() || isWorker();
-      
       allow delete: if isAdmin();
     }
 
-    // Categorías de productos: lectura pública, escritura solo admin y trabajadores
+    // ============================================
+    // REGLA: CATEGORÍAS
+    // ============================================
+    // Lectura pública, escritura solo admin y trabajadores
     match /categories/{categoryId} {
       allow read: if true;
       allow write: if isAdmin() || isWorker();
     }
 
-    // Configuración de la tienda: lectura pública, escritura solo admin
+    // ============================================
+    // REGLA: CONFIGURACIÓN DE LA TIENDA
+    // ============================================
+    // Lectura pública (horarios, info de contacto, etc.)
+    // Escritura solo admin
     match /settings/{settingId} {
-      allow read: if true;  // Configuración pública como horarios, info de contacto
+      allow read: if true;
       allow write: if isAdmin();
     }
 
-    // Carritos de compra: usuarios pueden gestionar su propio carrito
-    match /carts/{userId} {
-      allow read, write: if isAuthenticated() && request.auth.uid == userId;
-    }
-
-    // Reviews/Valoraciones: lectura pública, escritura para usuarios autenticados
+    // ============================================
+    // REGLA: REVIEWS/VALORACIONES
+    // ============================================
+    // Lectura: Público
+    // Creación: Usuario autenticado con validaciones
+    // Actualización: Solo propietario
+    // Eliminación: Propietario o admin
     match /reviews/{reviewId} {
-      // Permitir lectura a todos
       allow read: if true;
       
-      // Permitir creación solo a usuarios autenticados con RUT válido
       allow create: if isAuthenticated() 
         && request.resource.data.userId == request.auth.uid
         && validateReviewData(request.resource.data);
       
-      // Permitir actualización solo al propietario de la review
       allow update: if isAuthenticated() 
         && resource.data.userId == request.auth.uid
         && validateReviewData(request.resource.data);
       
-      // Permitir eliminación solo al propietario o administrador
       allow delete: if isAuthenticated() 
         && (resource.data.userId == request.auth.uid || isAdmin());
     }
 
-    // Función para validar estructura de reviews
+    // ============================================
+    // FUNCIÓN: VALIDAR REVIEW
+    // ============================================
     function validateReviewData(data) {
       return data.keys().hasAll(['productCode', 'userId', 'userName', 'rating', 'comment'])
         && data.rating is number
@@ -187,7 +230,10 @@ service cloud.firestore {
         && data.userName is string;
     }
 
-    // Fallback: restringir todo lo demás por seguridad
+    // ============================================
+    // FALLBACK: DENEGAR TODO LO NO ESPECIFICADO
+    // ============================================
+    // Por seguridad, denegar cualquier acceso no explícitamente permitido
     match /{document=**} {
       allow read, write: if false;
     }

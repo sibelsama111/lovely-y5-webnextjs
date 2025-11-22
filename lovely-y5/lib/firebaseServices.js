@@ -221,19 +221,31 @@ export const userService = {
       console.log('🔧 userService.create - Iniciando con datos:', userData)
       
       // Verificar si el RUT ya existe
-      console.log('🔧 Verificando si RUT existe:', userData.rut)
-      const existingUser = await this.getByRUT(userData.rut)
+      console.log('🔧 Verificando si RUT existe:', userData.RUT)
+      const existingUser = await this.getByRUT(userData.RUT)
       if (existingUser) {
-        console.log('❌ RUT ya existe:', userData.rut)
+        console.log('❌ RUT ya existe:', userData.RUT)
         throw new Error('User already exists')
       }
       
       console.log('✅ RUT disponible, creando usuario...')
-      const docRef = doc(db, 'users', userData.rut)
+      const docRef = doc(db, 'users', userData.RUT)
       const dataToSave = {
-        ...userData,
-        createdAt: new Date(),
-        updatedAt: new Date()
+        RUT: userData.RUT,
+        nombres: userData.nombres,
+        apellidos: userData.apellidos,
+        email: userData.email,
+        telefono: userData.telefono,
+        direccion: {
+          calle: userData.direccion.calle,
+          numero: userData.direccion.numero,
+          comuna: userData.direccion.comuna,
+          region: userData.direccion.region
+        },
+        fotoPerfil: userData.fotoPerfil || '',
+        rol: userData.rol || 'cliente',
+        password: userData.password,
+        createdAt: userData.createdAt || new Date()
       }
       
       console.log('🔧 Datos a guardar en Firestore:', dataToSave)
@@ -242,7 +254,7 @@ export const userService = {
       await setDoc(docRef, dataToSave)
       console.log('✅ Usuario guardado exitosamente')
       
-      return userData.rut
+      return userData.RUT
     } catch (error) {
       console.error('❌ Error creando usuario:', error)
       console.error('❌ Tipo de error:', error.constructor.name)
@@ -259,7 +271,7 @@ export const userService = {
       const docSnap = await getDoc(docRef)
       
       if (docSnap.exists()) {
-        return { rut: docSnap.id, ...docSnap.data() }
+        return { RUT: docSnap.id, ...docSnap.data() }
       } else {
         return null
       }
@@ -275,22 +287,22 @@ export const userService = {
       let user = null
       
       // Intentar por RUT
-      if (/^[0-9]{7,8}[0-9K]$/.test(identifier)) {
+      if (/^[0-9]{7,9}[0-9K]$/.test(identifier)) {
         user = await this.getByRUT(identifier)
       } else {
         // Buscar por correo o teléfono
         const q = query(
           collection(db, 'users'),
-          where(identifier.includes('@') ? 'correo' : 'telefono', '==', identifier)
+          where(identifier.includes('@') ? 'email' : 'telefono', '==', identifier.includes('@') ? identifier : parseInt(identifier))
         )
         const querySnapshot = await getDocs(q)
         if (!querySnapshot.empty) {
           const doc = querySnapshot.docs[0]
-          user = { rut: doc.id, ...doc.data() }
+          user = { RUT: doc.id, ...doc.data() }
         }
       }
       
-      if (user && user.password === password && user.activo) {
+      if (user && user.password === password) {
         return user
       }
       return null
