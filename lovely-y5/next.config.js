@@ -3,28 +3,16 @@ const nextConfig = {
   reactStrictMode: true,
   // Configuración optimizada para Firebase Hosting con funciones
   trailingSlash: true,
-  webpack: (config, { dev, isServer }) => {
-    // Eliminar la advertencia de depreciación
-    config.infrastructureLogging = {
-      level: 'error',
-    }
-    
-    return config
-  },
   // Security headers
   poweredByHeader: false,
-  // Production settings
-  typescript: {
-    // Ensure type checking in production
-    ignoreBuildErrors: process.env.NODE_ENV === 'development'
-  },
-  eslint: {
-    // Ensure linting in production
-    ignoreDuringBuilds: process.env.NODE_ENV === 'development'
-  },
   // Image optimization
   images: {
-    domains: ['localhost'],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+    ],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
