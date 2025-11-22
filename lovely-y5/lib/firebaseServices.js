@@ -269,11 +269,21 @@ export const userService = {
     try {
       const docRef = doc(db, 'users', rut)
       const docSnap = await getDoc(docRef)
-      
-      if (docSnap.exists()) {
-        return { RUT: docSnap.id, ...docSnap.data() }
-      } else {
-        return null
+      if (!docSnap.exists()) return null
+      const data = docSnap.data() || {}
+      return {
+        rut: docSnap.id,
+        primerNombre: data.primerNombre || data.nombres?.split(' ')[0] || '',
+        segundoNombre: data.segundoNombre || '',
+        apellidos: data.apellidos || (data.nombres ? data.nombres.split(' ').slice(1).join(' ') : ''),
+        correo: data.correo || data.email || '',
+        telefono: data.telefono || '',
+        direccion: typeof data.direccion === 'object' && data.direccion !== null
+          ? `${data.direccion.calle} ${data.direccion.numero}, ${data.direccion.comuna}, ${data.direccion.region}`
+          : (data.direccion || ''),
+        rol: data.rol || 'cliente',
+        activo: data.activo !== false,
+        password: data.password,
       }
     } catch (error) {
       console.error('Error obteniendo usuario por RUT:', error)
@@ -284,26 +294,36 @@ export const userService = {
   // Autenticar usuario
   async authenticate(identifier, password) {
     try {
-      let user = null
-      
-      // Intentar por RUT
+      let normalized = null
+      // RUT directo
       if (/^[0-9]{7,9}[0-9K]$/.test(identifier)) {
-        user = await this.getByRUT(identifier)
+        normalized = await this.getByRUT(identifier)
       } else {
-        // Buscar por correo o teléfono
-        const q = query(
-          collection(db, 'users'),
-          where(identifier.includes('@') ? 'email' : 'telefono', '==', identifier.includes('@') ? identifier : parseInt(identifier))
-        )
-        const querySnapshot = await getDocs(q)
-        if (!querySnapshot.empty) {
-          const doc = querySnapshot.docs[0]
-          user = { RUT: doc.id, ...doc.data() }
+        const field = identifier.includes('@') ? 'correo' : 'telefono'
+        const q = query(collection(db, 'users'), where(field, '==', identifier))
+        const qs = await getDocs(q)
+        if (!qs.empty) {
+          const docSnap = qs.docs[0]
+          const data = docSnap.data() || {}
+          normalized = {
+            rut: docSnap.id,
+            primerNombre: data.primerNombre || data.nombres?.split(' ')[0] || '',
+            segundoNombre: data.segundoNombre || '',
+            apellidos: data.apellidos || (data.nombres ? data.nombres.split(' ').slice(1).join(' ') : ''),
+            correo: data.correo || data.email || '',
+            telefono: data.telefono || '',
+            direccion: typeof data.direccion === 'object' && data.direccion !== null
+              ? `${data.direccion.calle} ${data.direccion.numero}, ${data.direccion.comuna}, ${data.direccion.region}`
+              : (data.direccion || ''),
+            rol: data.rol || 'cliente',
+            activo: data.activo !== false,
+            password: data.password,
+          }
         }
       }
-      
-      if (user && user.password === password) {
-        return user
+      if (normalized && normalized.password === password && normalized.activo) {
+        const { password: _pw, ...publicUser } = normalized
+        return publicUser
       }
       return null
     } catch (error) {

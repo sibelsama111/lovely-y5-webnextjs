@@ -159,7 +159,7 @@ export default function RegistroPage() {
         return
       }
       
-      const userData = {
+      const rawUserData = {
         RUT: form.RUT,
         nombres: form.nombres,
         apellidos: form.apellidos,
@@ -176,16 +176,23 @@ export default function RegistroPage() {
         fotoPerfil: form.fotoPerfil || '',
         createdAt: new Date()
       }
-      
-      console.log('🔧 Intentando crear usuario:', userData)
-      
-      const userId = await userService.create(userData)
-      console.log('✅ Usuario creado con ID:', userId)
-      
+
+      const userId = await userService.create(rawUserData)
       if (userId) {
-        // No incluir password en el contexto
-        const { password, ...userWithoutPassword } = userData
-        setUser(userWithoutPassword)
+        const nombreSplit = form.nombres.split(' ')
+        const primerNombre = nombreSplit[0] || ''
+        const segundoNombre = nombreSplit.slice(1).join(' ') || ''
+        const normalizedUser = {
+          rut: form.RUT,
+            primerNombre,
+            segundoNombre,
+            apellidos: form.apellidos,
+            correo: form.email,
+            telefono: String(form.telefono),
+            direccion: `${form.direccion.calle} ${form.direccion.numero}, ${form.direccion.comuna}, ${form.direccion.region}`,
+            rol: 'cliente'
+        }
+        setUser(normalizedUser as any)
         toast.success('Registro exitoso')
         router.push('/')
       }

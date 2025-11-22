@@ -24,13 +24,15 @@ type ProductDetails = {
   id: string;
   codigo: string;
   nombre: string;
-  marca: string;
-  tipo: string;
-  precio: number;
-  imagenes: string[];
-  descripcion: string;
-  detalles: string;
-  fichaTecnica: Record<string, string>;
+  marca?: string;
+  tipo?: string;
+  precio?: number; // legado
+  precioOriginal?: number;
+  precioActual?: number;
+  imagenes?: string[];
+  descripcion?: string;
+  detalles?: string;
+  fichaTecnica?: Record<string, string>;
   stock: number;
 }
 
@@ -85,18 +87,18 @@ export default function ProductoDetalle({ params }: { params: { id: string } }) 
       return
     }
     
-    if ((product as any).stock <= 0) {
+    if (product.stock <= 0) {
       toast.error('Producto sin stock disponible')
       return
     }
     
     try {
       addToCart({
-        codigo: (product as any).codigo || product.id,
+        codigo: product.codigo || product.id,
         nombre: product.nombre,
-        precioOriginal: (product as any).precioOriginal,
-        precioActual: (product as any).precioActual || product.precio,
-        imagenes: product.imagenes || ['/logo.svg']
+        precioOriginal: product.precioOriginal,
+        precioActual: product.precioActual || product.precio || 0,
+        imagenes: product.imagenes && product.imagenes.length > 0 ? product.imagenes : ['/logo.svg']
       })
       
       toast.success(`${product.nombre} añadido al carrito`)
@@ -182,22 +184,21 @@ export default function ProductoDetalle({ params }: { params: { id: string } }) 
             <span className="badge bg-secondary">{product.tipo}</span>
           </div>
           <div className="mb-4">
-            {(product as any).precioOriginal && (product as any).precioActual && 
-             (product as any).precioOriginal !== (product as any).precioActual ? (
+            {product.precioOriginal && product.precioActual && product.precioOriginal !== product.precioActual ? (
               <div className="d-flex align-items-center gap-3 mb-2">
                 <span className="text-muted text-decoration-line-through fs-4">
-                  ${(product as any).precioOriginal.toLocaleString('es-CL')}
+                  ${product.precioOriginal.toLocaleString('es-CL')}
                 </span>
                 <h3 className="text-primary fw-bold mb-0">
-                  ${(product as any).precioActual.toLocaleString('es-CL')}
+                  ${product.precioActual.toLocaleString('es-CL')}
                 </h3>
                 <span className="badge bg-danger fs-6">
-                  -{Math.round((((product as any).precioOriginal - (product as any).precioActual) / (product as any).precioOriginal) * 100)}%
+                  -{Math.round(((product.precioOriginal - product.precioActual) / product.precioOriginal) * 100)}%
                 </span>
               </div>
             ) : (
               <h3 className="text-primary mb-0">
-                ${Number((product as any).precioActual || product.precio).toLocaleString('es-CL')}
+                ${Number(product.precioActual || product.precio || 0).toLocaleString('es-CL')}
               </h3>
             )}
           </div>
@@ -309,12 +310,12 @@ export default function ProductoDetalle({ params }: { params: { id: string } }) 
                     <div key={review.id || index} className="card mb-3">
                       <div className="card-body">
                         <div className="d-flex justify-content-between">
-                          <h6 className="card-subtitle mb-2">{review.userName || (review as any).user}</h6>
+                          <h6 className="card-subtitle mb-2">{review.userName}</h6>
                           <span className="text-warning">{review.rating} ⭐</span>
                         </div>
                         <p className="card-text">{review.comment}</p>
                         <small className="text-muted">
-                          {new Date(review.createdAt?.toDate?.() || review.createdAt || (review as any).at).toLocaleDateString('es-CL', { 
+                          {new Date(review.createdAt?.toDate?.() || review.createdAt).toLocaleDateString('es-CL', { 
                             year: 'numeric', 
                             month: 'long', 
                             day: 'numeric' 

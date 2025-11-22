@@ -1,6 +1,6 @@
 'use client'
 import { useState, useContext } from 'react'
-import { AuthContext } from '../../context/AuthContext'
+import { AuthContext, UserType } from '../../context/AuthContext'
 import { userService } from '../../lib/firebaseServices'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-hot-toast'
@@ -29,13 +29,11 @@ export default function LoginPage() {
       }
       
       const cleanIdentifier = identifier.replace(/[^0-9kK@.]/g, '').toUpperCase()
-      const user = await userService.authenticate(cleanIdentifier, password)
-      
-      if (user && (user as any).nombres) {
-        // No incluir password en el contexto
-        const { password: _, ...userWithoutPassword } = user as any
-        setUser(userWithoutPassword)
-        toast.success(`Bienvenido/a ${(user as any).nombres}`)
+      const authUser = await userService.authenticate(cleanIdentifier, password)
+      if (authUser && typeof authUser === 'object' && 'primerNombre' in authUser) {
+        const userObj = authUser as UserType
+        setUser(userObj)
+        toast.success(`Bienvenido/a ${userObj.primerNombre}`)
         router.push('/')
       } else {
         if (identifier.includes('@')) {
