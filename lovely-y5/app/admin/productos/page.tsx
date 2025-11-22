@@ -15,16 +15,46 @@ export default function AdminProductos() {
   const create = async (e: any) => {
     e.preventDefault()
     if (!form.codigo.startsWith('LVL5_')) { toast.error('El código debe comenzar con LVL5_'); return }
-    const p = { id: uuidv4(), ...form, precio: Number(form.precio), stock: Number(form.stock), imagenes: ['/svgs/logo.svg'], fichaTecnica: JSON.parse(form.fichaTecnica || '{}') }
-    await fetch('/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) })
-    setProducts(prev => [p, ...prev])
-    toast.success('Producto creado (demo)')
-    setForm({ codigo: 'LVL5_', nombre: '', marca: '', tipo: '', precio: 0, imagenes: [], descripcion: '', detalles: '', fichaTecnica: '{}', stock: 0 })
+    if (!form.nombre.trim()) { toast.error('El nombre del producto es requerido'); return }
+    if (!form.marca.trim()) { toast.error('La marca es requerida'); return }
+    if (form.precio <= 0) { toast.error('El precio debe ser mayor a 0'); return }
+    
+    try {
+      const fichaTecnica = form.fichaTecnica ? JSON.parse(form.fichaTecnica) : {}
+      const p = { id: uuidv4(), ...form, precio: Number(form.precio), stock: Number(form.stock), imagenes: ['/logo.svg'], fichaTecnica }
+      const response = await fetch('/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) })
+      
+      if (!response.ok) {
+        throw new Error('Error al crear el producto')
+      }
+      
+      setProducts(prev => [p, ...prev])
+      toast.success('Producto creado exitosamente')
+      setForm({ codigo: 'LVL5_', nombre: '', marca: '', tipo: '', precio: 0, imagenes: [], descripcion: '', detalles: '', fichaTecnica: '{}', stock: 0 })
+    } catch (error) {
+      console.error(error)
+      toast.error('Error al crear el producto: ' + (error instanceof Error ? error.message : 'Error desconocido'))
+    }
   }
 
-  const remove = async (id: string) => {
-    await fetch('/api/products', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) })
-    setProducts(prev => prev.filter(p => p.id !== id))
+  const remove = async (id: string, nombre: string) => {
+    if (!confirm(`¿Estás seguro de que quieres eliminar "${nombre}"?`)) {
+      return
+    }
+    
+    try {
+      const response = await fetch('/api/products', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) })
+      
+      if (!response.ok) {
+        throw new Error('Error al eliminar el producto')
+      }
+      
+      setProducts(prev => prev.filter(p => p.id !== id))
+      toast.success('Producto eliminado exitosamente')
+    } catch (error) {
+      console.error(error)
+      toast.error('Error al eliminar el producto')
+    }
   }
 
   return (
@@ -55,7 +85,7 @@ export default function AdminProductos() {
               <strong>{p.nombre}</strong> <div className="text-muted">{p.codigo} • {p.marca}</div>
             </div>
             <div>
-              <button className="btn btn-sm btn-danger me-2" onClick={()=>remove(p.id)}>Eliminar</button>
+              <button className="btn btn-sm btn-danger me-2" onClick={()=>remove(p.id, p.nombre)}>Eliminar</button>
             </div>
           </div>
         ))}

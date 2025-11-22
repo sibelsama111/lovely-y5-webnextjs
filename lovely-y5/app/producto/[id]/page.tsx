@@ -80,15 +80,30 @@ export default function ProductoDetalle({ params }: { params: { id: string } }) 
   }, [params.id])
 
   const add = () => {
-    if (!product) return
-    addToCart({
-      codigo: (product as any).codigo || product.id, // Usar código del producto
-      nombre: product.nombre,
-      precioOriginal: (product as any).precioOriginal,
-      precioActual: (product as any).precioActual || product.precio,
-      imagenes: product.imagenes
-    })
-    toast.success('¡Producto añadido al carrito!')
+    if (!product) {
+      toast.error('Producto no disponible')
+      return
+    }
+    
+    if ((product as any).stock <= 0) {
+      toast.error('Producto sin stock disponible')
+      return
+    }
+    
+    try {
+      addToCart({
+        codigo: (product as any).codigo || product.id,
+        nombre: product.nombre,
+        precioOriginal: (product as any).precioOriginal,
+        precioActual: (product as any).precioActual || product.precio,
+        imagenes: product.imagenes || ['/logo.svg']
+      })
+      
+      toast.success(`${product.nombre} añadido al carrito`)
+    } catch (error) {
+      console.error('Error al añadir al carrito:', error)
+      toast.error('Error al añadir el producto al carrito')
+    }
   }
 
   const submitReview = async () => {

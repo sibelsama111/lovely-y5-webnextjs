@@ -8,13 +8,22 @@ export default function ProductCard({ product }: { product: any }) {
   const { addToCart } = useContext(CartContext)
 
   const handleAddToCart = () => {
-    addToCart({
-      codigo: product.codigo || product.id, // Usar código del producto
-      nombre: product.nombre,
-      precioOriginal: product.precioOriginal,
-      precioActual: product.precioActual || product.precio,
-      imagenes: product.imagenes
-    })
+    try {
+      if (!product.nombre) {
+        console.error('Producto sin nombre válido')
+        return
+      }
+      
+      addToCart({
+        codigo: product.codigo || product.id,
+        nombre: product.nombre,
+        precioOriginal: product.precioOriginal,
+        precioActual: product.precioActual || product.precio || 0,
+        imagenes: product.imagenes || ['/logo.svg']
+      })
+    } catch (error) {
+      console.error('Error al añadir producto al carrito:', error)
+    }
   }
 
   // Calcular descuento si hay precios originales y actuales

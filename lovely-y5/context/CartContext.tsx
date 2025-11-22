@@ -73,12 +73,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [cartItems]);
 
   const addToCart = (product: Omit<CartItem, 'cantidad'>) => {
+    // Validar que el producto tiene los campos requeridos
+    if (!product.codigo || !product.nombre || product.precioActual <= 0) {
+      console.error('Producto inválido:', product);
+      return;
+    }
+
     setCartItems(prevItems => {
       const exists = prevItems[product.codigo];
       if (exists) {
+        // Limitar cantidad máxima por producto
+        const newQuantity = Math.min(exists.cantidad + 1, 99);
         return {
           ...prevItems,
-          [product.codigo]: { ...exists, cantidad: exists.cantidad + 1 }
+          [product.codigo]: { ...exists, cantidad: newQuantity }
         };
       }
       return {
@@ -97,10 +105,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
   
   const updateQuantity = (codigo: string, cantidad: number) => {
-    setCartItems(prevItems => ({
-      ...prevItems,
-      [codigo]: { ...prevItems[codigo], cantidad }
-    }));
+    if (cantidad <= 0) {
+      removeFromCart(codigo);
+      return;
+    }
+    
+    // Limitar cantidad entre 1 y 99
+    const validQuantity = Math.max(1, Math.min(99, cantidad));
+    
+    setCartItems(prevItems => {
+      if (!prevItems[codigo]) return prevItems;
+      
+      return {
+        ...prevItems,
+        [codigo]: { ...prevItems[codigo], cantidad: validQuantity }
+      };
+    });
   };
 
   const clearCart = () => setCartItems({});

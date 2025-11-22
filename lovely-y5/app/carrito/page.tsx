@@ -203,8 +203,12 @@ export default function CarritoPage() {
                       className="form-control me-2" 
                       style={{ width: 80 }} 
                       value={item.cantidad} 
-                      min={1} 
-                      onChange={(e) => updateQuantity(item.codigo, Number(e.target.value))} 
+                      min={1}
+                      max={99}
+                      onChange={(e) => {
+                        const newQuantity = Math.max(1, Math.min(99, Number(e.target.value) || 1))
+                        updateQuantity(item.codigo, newQuantity)
+                      }} 
                     />
                     <button className="btn btn-sm btn-danger" onClick={() => removeFromCart(item.codigo)}>
                       Quitar
