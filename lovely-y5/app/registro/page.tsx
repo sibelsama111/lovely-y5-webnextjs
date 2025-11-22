@@ -9,16 +9,44 @@ export default function RegistroPage() {
   const { setUser } = useContext(AuthContext)
   const router = useRouter()
   const [form, setForm] = useState({
-    rut: '', primerNombre: '', segundoNombre: '', apellidos: '', correo: '', telefono: '', direccion: '', password: '', password2: ''
+    rut: '', 
+    nombres: '', 
+    apellidos: '', 
+    email: '', 
+    telefono: '', 
+    direccion: {
+      calle: '',
+      numero: '',
+      comuna: '',
+      region: 'Región Metropolitana'
+    },
+    password: '', 
+    password2: '',
+    fotoPerfil: null
   })
   const [loading, setLoading] = useState(false)
 
   const handle = (e: any) => {
     let value = e.target.value
-    if (e.target.name === 'rut') {
+    const name = e.target.name
+    
+    if (name === 'rut') {
       value = value.replace(/[^0-9kK]/g, '').toUpperCase()
     }
-    setForm({ ...form, [e.target.name]: value })
+    
+    // Manejar campos de dirección
+    if (name.startsWith('direccion.')) {
+      const field = name.split('.')[1]
+      setForm({ 
+        ...form, 
+        direccion: { 
+          ...form.direccion, 
+          [field]: value 
+        } 
+      })
+    } else {
+      setForm({ ...form, [name]: value })
+    }
   }
 
   const calculateCorrectDV = (rut: string) => {
@@ -52,8 +80,8 @@ export default function RegistroPage() {
         return
       }
       
-      if (!form.primerNombre.trim()) {
-        toast.error('El primer nombre es obligatorio')
+      if (!form.nombres.trim()) {
+        toast.error('El nombre completo es obligatorio')
         return
       }
       
@@ -62,15 +90,31 @@ export default function RegistroPage() {
         return
       }
       
-      if (!form.correo.trim()) {
+      if (!form.email.trim()) {
         toast.error('El correo electrónico es obligatorio')
         return
       }
       
       // Validar formato de correo
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      if (!emailRegex.test(form.correo)) {
+      if (!emailRegex.test(form.email)) {
         toast.error('El formato del correo electrónico no es válido')
+        return
+      }
+
+      // Validar dirección completa
+      if (!form.direccion.calle.trim()) {
+        toast.error('La calle es obligatoria')
+        return
+      }
+      
+      if (!form.direccion.numero.trim()) {
+        toast.error('El número de dirección es obligatorio')
+        return
+      }
+      
+      if (!form.direccion.comuna.trim()) {
+        toast.error('La comuna es obligatoria')
         return
       }
       
@@ -102,14 +146,14 @@ export default function RegistroPage() {
       
       const userData = {
         rut: form.rut,
-        primerNombre: form.primerNombre,
-        segundoNombre: form.segundoNombre || '',
+        nombres: form.nombres,
         apellidos: form.apellidos,
-        correo: form.correo,
-        telefono: form.telefono,
+        email: form.email,
+        telefono: form.telefono || '',
         direccion: form.direccion,
-        password: form.password,
+        password: form.password, // ⚠️ Se almacena en texto plano - ver documentación
         rol: 'cliente' as 'cliente',
+        fotoPerfil: form.fotoPerfil,
         activo: true
       }
       
@@ -146,18 +190,165 @@ export default function RegistroPage() {
       <h3>Registro</h3>
       <form onSubmit={submit}>
         <div className="row">
+          {/* Información Personal */}
+          <div className="col-12 mb-3">
+            <h5 className="text-muted">Información Personal</h5>
+          </div>
+          
           <div className="col-md-4 mb-2">
-            <input name="rut" className="form-control" placeholder="RUT (ej: 12345678K)" value={form.rut} onChange={handle} required />
+            <input 
+              name="rut" 
+              className="form-control" 
+              placeholder="RUT (ej: 12345678K)" 
+              value={form.rut} 
+              onChange={handle} 
+              required 
+            />
             <small className="text-muted">Sin puntos ni guión</small>
           </div>
-          <div className="col-md-4 mb-2"><input name="primerNombre" className="form-control" placeholder="Primer nombre" value={form.primerNombre} onChange={handle} required /></div>
-          <div className="col-md-4 mb-2"><input name="segundoNombre" className="form-control" placeholder="Segundo nombre (opcional)" value={form.segundoNombre} onChange={handle} /></div>
-          <div className="col-md-6 mb-2"><input name="apellidos" className="form-control" placeholder="Apellidos" value={form.apellidos} onChange={handle} required /></div>
-          <div className="col-md-6 mb-2"><input name="correo" type="email" className="form-control" placeholder="Correo" value={form.correo} onChange={handle} required /></div>
-          <div className="col-md-4 mb-2"><input name="telefono" className="form-control" placeholder="Teléfono" value={form.telefono} onChange={handle} /></div>
-          <div className="col-md-8 mb-2"><input name="direccion" className="form-control" placeholder="Dirección" value={form.direccion} onChange={handle} /></div>
-          <div className="col-md-6 mb-2"><input name="password" type="password" className="form-control" placeholder="Contraseña" value={form.password} onChange={handle} required /></div>
-          <div className="col-md-6 mb-2"><input name="password2" type="password" className="form-control" placeholder="Repite contraseña" value={form.password2} onChange={handle} required /></div>
+          
+          <div className="col-md-4 mb-2">
+            <input 
+              name="nombres" 
+              className="form-control" 
+              placeholder="Nombre completo" 
+              value={form.nombres} 
+              onChange={handle} 
+              required 
+            />
+          </div>
+          
+          <div className="col-md-4 mb-2">
+            <input 
+              name="apellidos" 
+              className="form-control" 
+              placeholder="Apellidos" 
+              value={form.apellidos} 
+              onChange={handle} 
+              required 
+            />
+          </div>
+
+          {/* Información de Contacto */}
+          <div className="col-12 mb-3 mt-3">
+            <h5 className="text-muted">Información de Contacto</h5>
+          </div>
+          
+          <div className="col-md-6 mb-2">
+            <input 
+              name="email" 
+              type="email" 
+              className="form-control" 
+              placeholder="Correo electrónico" 
+              value={form.email} 
+              onChange={handle} 
+              required 
+            />
+          </div>
+          
+          <div className="col-md-6 mb-2">
+            <input 
+              name="telefono" 
+              className="form-control" 
+              placeholder="Teléfono (opcional)" 
+              value={form.telefono} 
+              onChange={handle} 
+            />
+          </div>
+
+          {/* Dirección Completa */}
+          <div className="col-12 mb-3 mt-3">
+            <h5 className="text-muted">Dirección</h5>
+          </div>
+          
+          <div className="col-md-6 mb-2">
+            <input 
+              name="direccion.calle" 
+              className="form-control" 
+              placeholder="Calle/Avenida" 
+              value={form.direccion.calle} 
+              onChange={handle} 
+              required 
+            />
+          </div>
+          
+          <div className="col-md-3 mb-2">
+            <input 
+              name="direccion.numero" 
+              className="form-control" 
+              placeholder="Número" 
+              value={form.direccion.numero} 
+              onChange={handle} 
+              required 
+            />
+          </div>
+          
+          <div className="col-md-3 mb-2">
+            <input 
+              name="direccion.comuna" 
+              className="form-control" 
+              placeholder="Comuna" 
+              value={form.direccion.comuna} 
+              onChange={handle} 
+              required 
+            />
+          </div>
+          
+          <div className="col-md-6 mb-2">
+            <select 
+              name="direccion.region" 
+              className="form-control" 
+              value={form.direccion.region} 
+              onChange={handle} 
+              required
+            >
+              <option value="Región Metropolitana">Región Metropolitana</option>
+              <option value="Región de Valparaíso">Región de Valparaíso</option>
+              <option value="Región del Biobío">Región del Biobío</option>
+              <option value="Región de La Araucanía">Región de La Araucanía</option>
+              <option value="Región de Los Lagos">Región de Los Lagos</option>
+              <option value="Región de Antofagasta">Región de Antofagasta</option>
+              <option value="Región de Atacama">Región de Atacama</option>
+              <option value="Región de Coquimbo">Región de Coquimbo</option>
+              <option value="Región del Libertador Bernardo O'Higgins">Región del Libertador Bernardo O'Higgins</option>
+              <option value="Región del Maule">Región del Maule</option>
+              <option value="Región de Ñuble">Región de Ñuble</option>
+              <option value="Región de Los Ríos">Región de Los Ríos</option>
+              <option value="Región de Aysén">Región de Aysén</option>
+              <option value="Región de Magallanes">Región de Magallanes</option>
+              <option value="Región de Arica y Parinacota">Región de Arica y Parinacota</option>
+              <option value="Región de Tarapacá">Región de Tarapacá</option>
+            </select>
+          </div>
+
+          {/* Seguridad */}
+          <div className="col-12 mb-3 mt-3">
+            <h5 className="text-muted">Seguridad</h5>
+          </div>
+          
+          <div className="col-md-6 mb-2">
+            <input 
+              name="password" 
+              type="password" 
+              className="form-control" 
+              placeholder="Contraseña (mínimo 6 caracteres)" 
+              value={form.password} 
+              onChange={handle} 
+              required 
+            />
+          </div>
+          
+          <div className="col-md-6 mb-2">
+            <input 
+              name="password2" 
+              type="password" 
+              className="form-control" 
+              placeholder="Confirmar contraseña" 
+              value={form.password2} 
+              onChange={handle} 
+              required 
+            />
+          </div>
         </div>
         <div className="mt-3">
           <button className="btn btn-primary" type="submit" disabled={loading}>
